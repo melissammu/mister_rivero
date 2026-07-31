@@ -8,6 +8,7 @@ import Motores from "../pages/motores/Motores";
 import RegistrarMotor from "../pages/motores/RegistrarMotor";
 import Contenedor40 from "../pages/contenedor40/Contenedor40";
 import Contenedor80 from "../pages/contenedor80/Contenedor80";
+import Partes from "../pages/partes/Partes";
 function AppRoutes() {
   return (
     <Routes>
@@ -22,7 +23,7 @@ function AppRoutes() {
     <Route path="motores/nuevo" element={<RegistrarMotor />} />
     <Route path="contenedor40" element={<Contenedor40 />} />
     <Route path="contenedor80" element={<Contenedor80 />} />
-    
+    <Route path="partes" element={<Partes />} />
   </Route>
 
   <Route path="*" element={<Navigate to="/" replace />} />

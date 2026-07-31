@@ -1,0 +1,218 @@
+/* =========================================
+   AUTOPARTES
+   Complemento visual de Contenedor 40
+========================================= */
+
+.partes-page {
+  width: 100%;
+}
+
+.partes-header-acciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.partes-boton-registrar {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 16px;
+  border: 1px solid #f5bf28;
+  border-radius: 999px;
+  background: #f5bf28;
+  color: #302400;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease;
+}
+
+.partes-boton-registrar:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+/* Fila horizontal igual a Contenedor 40 */
+
+.parte-lista {
+  width: 100%;
+  min-height: 105px;
+}
+
+.parte-lista-imagen {
+  width: 82px;
+  height: 82px;
+  min-width: 82px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.boton-imagen-parte {
+  width: 100%;
+  height: 100%;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.boton-imagen-parte img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.parte-lista-info {
+  min-width: 0;
+}
+
+.parte-lista-info h2 {
+  margin: 3px 0 5px;
+  line-height: 1.2;
+}
+
+.parte-dato {
+  margin: 2px 0;
+  line-height: 1.3;
+}
+
+.parte-descripcion {
+  max-width: 470px;
+  margin: 5px 0 0;
+  color: #68717d;
+  font-size: 0.75rem;
+  line-height: 1.35;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.partes-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Estado */
+
+.estado-disponible {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.estado-reservado {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.estado-vendido {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Galería */
+
+.galeria-partes {
+  display: grid;
+  grid-template-columns:
+    42px minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 12px;
+}
+
+.galeria-partes img {
+  width: 100%;
+  max-height: 480px;
+  display: block;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #eceff1;
+}
+
+.galeria-partes button {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #f5bf28;
+  color: #302400;
+  font-size: 1.7rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.galeria-contador-partes {
+  margin: 12px 0 0;
+  text-align: center;
+}
+
+.descripcion-galeria {
+  margin: -6px 0 15px;
+  color: #68717d;
+  line-height: 1.5;
+}
+
+.partes-vacio-icono {
+  font-size: 2rem;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+  .parte-descripcion {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 760px) {
+  .partes-header-acciones {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .partes-boton-registrar {
+    width: 100%;
+  }
+
+  .parte-lista {
+    min-height: auto;
+  }
+
+  .parte-lista-imagen {
+    width: 74px;
+    height: 74px;
+    min-width: 74px;
+  }
+
+  .parte-descripcion {
+    max-width: 100%;
+  }
+
+  .galeria-partes {
+    grid-template-columns:
+      34px minmax(0, 1fr) 34px;
+    gap: 7px;
+  }
+
+  .galeria-partes button {
+    width: 34px;
+    height: 34px;
+    font-size: 1.4rem;
+  }
+}

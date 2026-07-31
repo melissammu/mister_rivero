@@ -39,7 +39,7 @@ function Sidebar() {
           <span>Motores</span>
         </NavLink>
 
-        <NavLink to="/admin/piezas">
+        <NavLink to="/admin/partesgit">
           <FaTools />
           <span>Partes</span>
         </NavLink>

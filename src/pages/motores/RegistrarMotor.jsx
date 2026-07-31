@@ -430,18 +430,26 @@ function RegistrarMotor() {
         ])
       );
 
-      alert(
-        `${
-          esMotor ? "Motor" : "Autoparte"
-        } ${codigo} registrado correctamente.`
-      );
+     alert(
+  `${esMotor ? "Motor" : "Autoparte"} ${codigo} registrado correctamente.`
+);
 
-      navigate(
-        esMotor
-          ? "/admin/motores"
-          : "/admin/partes"
-      );
-    } catch (error) {
+if (!esMotor) {
+  navigate("/admin/partes");
+  return;
+}
+
+if (producto.ubicacion === "contenedor40") {
+  navigate("/admin/contenedor40");
+  return;
+}
+
+if (producto.ubicacion === "contenedor80") {
+  navigate("/admin/contenedor80");
+  return;
+}
+
+navigate("/admin/motores");    } catch (error) {
       console.error(
         "Error al guardar:",
         error
