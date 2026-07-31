@@ -43,6 +43,7 @@ function Sidebar() {
           <FaTools />
           <span>Partes</span>
         </NavLink>
+        
 
         <NavLink to="/admin/contenedor40">
           <FaBoxOpen />

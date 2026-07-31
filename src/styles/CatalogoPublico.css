@@ -1,0 +1,1230 @@
+/* =========================================================
+   MR. RIVERO MOTORS
+   CATÁLOGO PÚBLICO
+   Blanco + negro grafito + amarillo automotriz
+========================================================= */
+
+:root {
+  --catalogo-negro: #0d1117;
+  --catalogo-negro-suave: #151a21;
+  --catalogo-grafito: #222831;
+  --catalogo-gris: #667085;
+  --catalogo-gris-claro: #eef1f4;
+  --catalogo-blanco: #ffffff;
+  --catalogo-amarillo: #f5b800;
+  --catalogo-amarillo-claro: #ffd84d;
+  --catalogo-verde: #16803c;
+  --catalogo-borde: #e3e7eb;
+  --catalogo-sombra: 0 14px 38px rgba(15, 23, 42, 0.09);
+  --catalogo-radio: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.catalogo-publico {
+  min-height: 100vh;
+  background: #f7f8fa;
+  color: var(--catalogo-negro);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.catalogo-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 78px;
+  display: grid;
+  grid-template-columns: auto minmax(260px, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 14px clamp(20px, 4vw, 64px);
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--catalogo-borde);
+  backdrop-filter: blur(14px);
+}
+
+.catalogo-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--catalogo-negro);
+  cursor: pointer;
+}
+
+.catalogo-logo-icono {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--catalogo-negro);
+  color: var(--catalogo-amarillo);
+  font-size: 1.55rem;
+  box-shadow: 0 8px 20px rgba(13, 17, 23, 0.16);
+}
+
+.catalogo-logo > span:last-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+}
+
+.catalogo-logo strong {
+  font-size: 1.03rem;
+  letter-spacing: 0.03em;
+}
+
+.catalogo-logo small {
+  margin-top: 5px;
+  color: var(--catalogo-amarillo);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+.catalogo-buscador-contenedor{
+    width:min(1280px, calc(100% - 32px));
+    margin:18px auto;
+}
+
+.catalogo-buscador-superior{
+    width:100%;
+    min-height:56px;
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    padding:0 18px;
+
+    border:1px solid var(--catalogo-borde);
+
+    border-radius:16px;
+
+    background:#ffffff;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.05);
+}
+
+.catalogo-buscador-superior:focus-within {
+  border-color: var(--catalogo-amarillo);
+  background: var(--catalogo-blanco);
+  box-shadow: 0 0 0 4px rgba(245, 184, 0, 0.14);
+}
+
+.catalogo-buscador-superior svg {
+  flex-shrink: 0;
+  color: #4d5764;
+}
+
+.catalogo-buscador-superior input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--catalogo-negro);
+  font-size: 0.9rem;
+}
+
+.catalogo-buscador-superior input::placeholder {
+  color: #8c96a3;
+}
+
+.catalogo-header-acciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.catalogo-header-acciones a,
+.catalogo-header-acciones button {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 11px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  color: #2f3742;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.catalogo-header-acciones a:hover,
+.catalogo-header-acciones button:hover {
+  background: var(--catalogo-gris-claro);
+  color: var(--catalogo-negro);
+  transform: translateY(-1px);
+}
+
+.catalogo-header-acciones a:first-child svg {
+  color: #19a957;
+}
+
+/* =========================================================
+   NAVEGACIÓN
+========================================================= */
+
+.catalogo-navegacion {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 6px clamp(20px, 4vw, 64px);
+  background: var(--catalogo-blanco);
+  border-bottom: 1px solid var(--catalogo-borde);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.catalogo-navegacion::-webkit-scrollbar {
+  display: none;
+}
+
+.catalogo-navegacion button {
+  position: relative;
+  min-height: 38px;
+  padding: 0 17px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #4c5562;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.catalogo-navegacion button:hover {
+  background: #f2f4f7;
+  color: var(--catalogo-negro);
+}
+
+.catalogo-navegacion button.activo {
+  background: var(--catalogo-negro);
+  color: var(--catalogo-amarillo);
+}
+/* =====================================================
+   HERO - MR. RIVERO MOTORS
+===================================================== */
+
+.catalogo-hero{
+    width:min(1280px,calc(100% - 32px));
+
+    margin:18px auto 20px;
+
+    padding:28px 36px;
+
+    min-height:260px;
+
+    display:grid;
+    grid-template-columns:45% 55%;
+    align-items:center;
+    gap:24px;
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    background:
+        radial-gradient(
+            circle at 80% 50%,
+            rgba(245,184,0,.14),
+            transparent 40%
+        ),
+        linear-gradient(
+            135deg,
+            #0c1016,
+            #171d25
+        );
+
+    box-shadow:0 14px 35px rgba(0,0,0,.18);
+}
+
+/* ---------------- TEXTO ---------------- */
+
+.catalogo-hero-texto{
+    max-width:500px;
+}
+
+.catalogo-hero-etiqueta{
+
+    display:inline-block;
+
+    margin-bottom:14px;
+
+    color:#F5B800;
+
+    font-size:.72rem;
+
+    font-weight:800;
+
+    letter-spacing:2px;
+
+    text-transform:uppercase;
+}
+
+.catalogo-hero h1{
+
+    margin:0 0 16px;
+
+    color:#fff;
+
+    font-size:clamp(2rem,4vw,3.7rem);
+
+    line-height:.95;
+
+    font-weight:900;
+}
+
+.catalogo-hero h1 strong{
+
+    color:#F5B800;
+
+}
+
+.catalogo-hero p{
+
+    margin:0;
+
+    color:#d2d7de;
+
+    font-size:.92rem;
+
+    line-height:1.6;
+
+    max-width:460px;
+
+}
+
+.catalogo-hero-botones{
+
+    display:flex;
+
+    gap:12px;
+
+    flex-wrap:wrap;
+
+    margin-top:20px;
+
+}
+
+/* ---------------- MOTOR ---------------- */
+
+.catalogo-hero-motor{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    height:220px;
+
+}
+
+.catalogo-hero-motor img{
+
+    width:100%;
+
+    max-width:500px;
+
+    max-height:220px;
+
+    object-fit:contain;
+
+    filter:drop-shadow(
+        0 18px 22px rgba(0,0,0,.35)
+    );
+
+    transition:.25s;
+}
+
+.catalogo-hero-motor img:hover{
+
+    transform:scale(1.02);
+
+}
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width:900px){
+
+.catalogo-hero{
+
+    grid-template-columns:1fr;
+
+    text-align:center;
+
+    padding:24px;
+
+    min-height:auto;
+
+}
+
+.catalogo-hero-texto{
+
+    max-width:100%;
+
+}
+
+.catalogo-hero p{
+
+    margin:auto;
+
+}
+
+.catalogo-hero-botones{
+
+    justify-content:center;
+
+}
+
+.catalogo-hero-motor{
+
+    order:-1;
+
+    height:190px;
+
+}
+
+.catalogo-hero-motor img{
+
+    max-height:190px;
+
+    max-width:420px;
+
+}
+
+}
+
+/* =====================================================
+   CELULARES
+===================================================== */
+
+@media (max-width:680px){
+
+.catalogo-hero{
+
+    width:calc(100% - 18px);
+
+    margin:12px auto;
+
+    padding:20px 16px;
+
+    gap:18px;
+
+    border-radius:18px;
+
+}
+
+.catalogo-hero h1{
+
+    font-size:2rem;
+
+}
+
+.catalogo-hero p{
+
+    font-size:.88rem;
+
+}
+
+.catalogo-hero-botones{
+
+    flex-direction:column;
+
+}
+
+.boton-amarillo,
+.boton-secundario-publico{
+
+    width:100%;
+
+}
+
+.catalogo-hero-motor{
+
+    height:170px;
+
+}
+
+.catalogo-hero-motor img{
+
+    max-width:320px;
+
+    max-height:170px;
+
+}
+
+}
+
+/* =====================================================
+   IPHONE PEQUEÑO
+===================================================== */
+
+@media (max-width:430px){
+
+.catalogo-hero{
+
+    padding:18px 14px;
+
+}
+
+.catalogo-hero h1{
+
+    font-size:1.8rem;
+
+}
+
+.catalogo-hero-motor{
+
+    height:150px;
+
+}
+
+.catalogo-hero-motor img{
+
+    max-width:280px;
+
+    max-height:150px;
+
+}
+
+}
+/* =========================================================
+   BENEFICIOS
+========================================================= */
+
+.catalogo-beneficios {
+  width: min(1480px, calc(100% - 40px));
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 0 auto 26px;
+  border: 1px solid var(--catalogo-borde);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--catalogo-blanco);
+  box-shadow: var(--catalogo-sombra);
+}
+
+.catalogo-beneficios article {
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 24px;
+  border-right: 1px solid var(--catalogo-borde);
+}
+
+.catalogo-beneficios article:last-child {
+  border-right: none;
+}
+
+.catalogo-beneficios strong {
+  margin-bottom: 6px;
+  color: var(--catalogo-negro);
+  font-size: 0.9rem;
+}
+
+.catalogo-beneficios span {
+  color: var(--catalogo-gris);
+  font-size: 0.78rem;
+}
+
+/* =========================================================
+   CATEGORÍAS
+========================================================= */
+
+.catalogo-categorias {
+  width: min(1480px, calc(100% - 40px));
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 auto 36px;
+}
+
+.categoria-card {
+  min-height: 120px;
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  align-items: center;
+  gap: 13px;
+  padding: 18px;
+  border: 1px solid var(--catalogo-borde);
+  border-radius: var(--catalogo-radio);
+  background: var(--catalogo-blanco);
+  color: var(--catalogo-negro);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.categoria-card:hover {
+  transform: translateY(-4px);
+  border-color: #d1a000;
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.1);
+}
+
+.categoria-card.activa {
+  border-color: var(--catalogo-amarillo);
+  box-shadow: 0 0 0 3px rgba(245, 184, 0, 0.12);
+}
+
+.categoria-icono {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--catalogo-negro);
+  color: var(--catalogo-amarillo);
+  font-size: 1.4rem;
+}
+
+.categoria-card div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.categoria-card strong {
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.categoria-card small {
+  color: var(--catalogo-gris);
+  font-size: 0.73rem;
+  line-height: 1.35;
+}
+
+.categoria-card > svg {
+  color: #8a94a2;
+}
+
+/* =========================================================
+   PRODUCTOS
+========================================================= */
+
+.catalogo-productos {
+  width: min(1480px, calc(100% - 40px));
+  margin: 0 auto;
+  padding-bottom: 90px;
+}
+
+.catalogo-productos-titulo {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.catalogo-productos-titulo span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--catalogo-amarillo);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.catalogo-productos-titulo h2 {
+  margin: 0;
+  color: var(--catalogo-negro);
+  font-size: clamp(1.7rem, 3vw, 2.45rem);
+  letter-spacing: -0.035em;
+}
+
+.catalogo-productos-titulo > strong {
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: var(--catalogo-negro);
+  color: var(--catalogo-amarillo);
+  font-size: 0.77rem;
+}
+
+.catalogo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.catalogo-producto-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--catalogo-borde);
+  border-radius: 20px;
+  background: var(--catalogo-blanco);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.catalogo-producto-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 44px rgba(15, 23, 42, 0.12);
+}
+
+.producto-card-imagen {
+  position: relative;
+  height: 235px;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at center,
+      #ffffff,
+      #eef1f4 82%
+    );
+}
+
+.producto-card-imagen img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  padding: 15px;
+  transition: transform 0.3s ease;
+}
+
+.catalogo-producto-card:hover .producto-card-imagen img {
+  transform: scale(1.04);
+}
+
+.producto-sin-imagen {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #a2abb5;
+  font-size: 4rem;
+}
+
+.producto-disponible {
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: var(--catalogo-verde);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.producto-favorito {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(21, 26, 33, 0.08);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: #4c5562;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.producto-favorito:hover {
+  color: #d72828;
+  transform: scale(1.08);
+}
+
+.producto-card-contenido {
+  padding: 18px;
+}
+
+.producto-codigo {
+  display: block;
+  margin-bottom: 7px;
+  color: #8b95a2;
+  font-size: 0.69rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.producto-card-contenido h3 {
+  min-height: 46px;
+  margin: 0 0 7px;
+  color: var(--catalogo-negro);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.producto-card-contenido p {
+  min-height: 37px;
+  margin: 0 0 15px;
+  color: var(--catalogo-gris);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.producto-precio {
+  display: block;
+  margin-bottom: 16px;
+  color: var(--catalogo-negro);
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.producto-card-acciones {
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  gap: 8px;
+}
+
+.boton-comprar,
+.boton-compartir {
+  min-height: 44px;
+  border-radius: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease;
+}
+
+.boton-comprar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--catalogo-amarillo);
+  background: var(--catalogo-amarillo);
+  color: #201800;
+  font-size: 0.82rem;
+}
+
+.boton-compartir {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--catalogo-borde);
+  background: var(--catalogo-blanco);
+  color: var(--catalogo-negro);
+}
+
+.boton-comprar:hover,
+.boton-compartir:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+
+/* =========================================================
+   VACÍO
+========================================================= */
+
+.catalogo-vacio {
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 11px;
+  padding: 35px;
+  border: 1px dashed #cfd5dc;
+  border-radius: 20px;
+  background: var(--catalogo-blanco);
+  text-align: center;
+}
+
+.catalogo-vacio svg {
+  color: var(--catalogo-amarillo);
+  font-size: 3rem;
+}
+
+.catalogo-vacio h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.catalogo-vacio p {
+  max-width: 480px;
+  margin: 0;
+  color: var(--catalogo-gris);
+  line-height: 1.6;
+}
+
+/* =========================================================
+   WHATSAPP
+========================================================= */
+
+.catalogo-whatsapp-flotante {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 120;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #20bd5f;
+  color: var(--catalogo-blanco);
+  font-size: 1.7rem;
+  text-decoration: none;
+  box-shadow: 0 16px 28px rgba(32, 189, 95, 0.28);
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease;
+}
+
+.catalogo-whatsapp-flotante:hover {
+  transform: translateY(-3px) scale(1.04);
+  filter: brightness(1.04);
+}
+
+/* =========================================================
+   RESPONSIVE TABLET
+========================================================= */
+
+@media (max-width: 1180px) {
+  .catalogo-header {
+    grid-template-columns: auto 1fr;
+  }
+
+  .catalogo-buscador-superior {
+    order: 3;
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+
+  .catalogo-header-acciones {
+    justify-self: end;
+  }
+
+  .catalogo-categorias {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .catalogo-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .catalogo-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .catalogo-hero-motor {
+    min-height: 220px;
+  }
+
+  .catalogo-beneficios {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .catalogo-beneficios article:nth-child(2) {
+    border-right: none;
+  }
+
+  .catalogo-beneficios article:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--catalogo-borde);
+  }
+
+  .catalogo-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================================================
+   RESPONSIVE MÓVIL
+========================================================= */
+
+@media (max-width: 680px) {
+  .catalogo-header {
+    position: relative;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    padding: 12px 15px;
+  }
+
+  .catalogo-logo-icono {
+    width: 42px;
+    height: 42px;
+  }
+
+  .catalogo-logo strong {
+    font-size: 0.9rem;
+  }
+
+  .catalogo-logo small {
+    font-size: 0.65rem;
+  }
+
+  .catalogo-header-acciones a span,
+  .catalogo-header-acciones button span {
+    display: none;
+  }
+
+  .catalogo-header-acciones a,
+  .catalogo-header-acciones button {
+    width: 38px;
+    min-height: 38px;
+    padding: 0;
+  }
+
+  .catalogo-header-acciones a:first-child,
+  .catalogo-header-acciones button:nth-of-type(1) {
+    display: none;
+  }
+
+  .catalogo-buscador-superior {
+    min-height: 44px;
+  }
+
+  .catalogo-navegacion {
+    justify-content: flex-start;
+    padding: 6px 13px;
+  }
+
+  .catalogo-navegacion button {
+    padding: 0 13px;
+    font-size: 0.69rem;
+  }
+
+  .catalogo-hero {
+    width: calc(100% - 24px);
+    min-height: auto;
+    margin-top: 14px;
+    padding: 27px 21px;
+    border-radius: 20px;
+  }
+
+  .catalogo-hero h1 {
+    font-size: clamp(2.05rem, 12vw, 3.2rem);
+  }
+
+  .catalogo-hero-botones {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .boton-amarillo,
+  .boton-secundario-publico {
+    width: 100%;
+  }
+
+  .catalogo-beneficios {
+    width: calc(100% - 24px);
+  }
+
+  .catalogo-beneficios article {
+    min-height: 88px;
+    padding: 15px;
+  }
+
+  .catalogo-categorias {
+    width: calc(100% - 24px);
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+
+  .catalogo-categorias::-webkit-scrollbar {
+    display: none;
+  }
+
+  .categoria-card {
+    min-width: 230px;
+  }
+
+  .catalogo-productos {
+    width: calc(100% - 24px);
+  }
+
+  .catalogo-productos-titulo {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .catalogo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .producto-card-imagen {
+    height: 260px;
+  }
+
+  .catalogo-whatsapp-flotante {
+    right: 16px;
+    bottom: 16px;
+    width: 54px;
+    height: 54px;
+  }
+}
+
+@media (max-width: 430px) {
+  .catalogo-beneficios {
+    grid-template-columns: 1fr;
+  }
+
+  .catalogo-beneficios article {
+    border-right: none;
+    border-bottom: 1px solid var(--catalogo-borde);
+  }
+
+  .catalogo-beneficios article:last-child {
+    border-bottom: none;
+  }
+
+  .catalogo-header-acciones button:last-child {
+    display: none;
+  }
+}
+/* =========================================
+   BUSCADOR GLOBAL DEL INVENTARIO PROPIO
+========================================= */
+
+.catalogo-buscador-superior {
+  position: relative;
+}
+
+.catalogo-buscador-superior input {
+  padding-right: 34px;
+}
+
+.catalogo-buscador-superior.deshabilitado {
+  opacity: 0.62;
+  background: #eef0f2;
+  cursor: not-allowed;
+}
+
+.catalogo-buscador-superior.deshabilitado input {
+  cursor: not-allowed;
+}
+
+.boton-limpiar-busqueda {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+
+  width: 28px;
+  height: 28px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+
+  background: #dde1e5;
+  color: #151a21;
+
+  font-size: 1.2rem;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.boton-limpiar-busqueda:hover {
+  background: #f5b800;
+}
+
+.producto-identificacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  margin-bottom: 7px;
+}
+
+.producto-identificacion .producto-codigo {
+  margin-bottom: 0;
+}
+
+.producto-origen {
+  flex-shrink: 0;
+
+  padding: 5px 8px;
+  border-radius: 999px;
+
+  background: #151a21;
+  color: #f5b800;
+
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.catalogo-buscador-superior{
+    width:min(760px,95%);
+    margin:18px auto 14px;
+}
+.catalogo-buscador-contenedor{
+    width:min(900px,85%);
+    margin:10px auto 18px;
+}
+
+.catalogo-buscador-superior{
+    height:54px;
+    border-radius:18px;
+    padding:0 18px;
+}

@@ -1,4 +1,8 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
 
 import Login from "../pages/auth/Login";
 import Dashboard from "../pages/admin/Dashboard";
@@ -9,27 +13,94 @@ import RegistrarMotor from "../pages/motores/RegistrarMotor";
 import Contenedor40 from "../pages/contenedor40/Contenedor40";
 import Contenedor80 from "../pages/contenedor80/Contenedor80";
 import Partes from "../pages/partes/Partes";
-function AppRoutes() {
+
+import CatalogoPublico from "../pages/catalogo/CatalogoPublico";
+import ProductoDetalle from "../pages/catalogo/ProductoDetalle";
+
+export default function AppRoutes() {
   return (
     <Routes>
+      {/* ==============================
+          RUTAS PÚBLICAS
+      ============================== */}
 
-  <Route path="/" element={<Login />} />
+      <Route
+        path="/"
+        element={<Login />}
+      />
 
-  <Route path="/admin" element={<AdminLayout />}>
+      <Route
+        path="/catalogo"
+        element={<CatalogoPublico />}
+      />
 
-    <Route index element={<Navigate to="dashboard" replace />} />
-    <Route path="dashboard" element={<Dashboard />} />
-    <Route path="motores" element={<Motores />} />
-    <Route path="motores/nuevo" element={<RegistrarMotor />} />
-    <Route path="contenedor40" element={<Contenedor40 />} />
-    <Route path="contenedor80" element={<Contenedor80 />} />
-    <Route path="partes" element={<Partes />} />
-  </Route>
+      <Route
+        path="/catalogo/producto/:tipo/:id"
+        element={<ProductoDetalle />}
+      />
 
-  <Route path="*" element={<Navigate to="/" replace />} />
+      {/* ==============================
+          PANEL ADMINISTRATIVO
+      ============================== */}
 
-</Routes>
+      <Route
+        path="/admin"
+        element={<AdminLayout />}
+      >
+        <Route
+          index
+          element={
+            <Navigate
+              to="dashboard"
+              replace
+            />
+          }
+        />
+
+        <Route
+          path="dashboard"
+          element={<Dashboard />}
+        />
+
+        <Route
+          path="motores"
+          element={<Motores />}
+        />
+
+        <Route
+          path="motores/nuevo"
+          element={<RegistrarMotor />}
+        />
+
+        <Route
+          path="contenedor40"
+          element={<Contenedor40 />}
+        />
+
+        <Route
+          path="contenedor80"
+          element={<Contenedor80 />}
+        />
+
+        <Route
+          path="partes"
+          element={<Partes />}
+        />
+      </Route>
+
+      {/* ==============================
+          RUTA NO ENCONTRADA
+      ============================== */}
+
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to="/"
+            replace
+          />
+        }
+      />
+    </Routes>
   );
 }
-
-export default AppRoutes;
