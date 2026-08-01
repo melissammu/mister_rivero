@@ -170,13 +170,13 @@ useEffect(() => {
     setErrorProductos("");
 
     try {
-      const { data, error } = await supabase
-        .from("productos")
-        .select("*")
-        .in("estado", ["disponible", "reservado"])
-        .order("created_at", {
-          ascending: false,
-        });
+const { data, error } = await supabase
+  .from("productos")
+  .select("*")
+  .or("estado.ilike.disponible,estado.ilike.reservado")
+  .order("created_at", {
+    ascending: false,
+  });
 
       if (error) {
         throw error;
