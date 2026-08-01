@@ -366,16 +366,27 @@ for (const imagen of imagenes) {
     throw new Error("No se encontró el archivo original de la fotografía.");
   }
 
-  const nombreSeguro = archivoReal.name.replace(
-    /[^a-zA-Z0-9._-]/g,
-    "_"
-  );
+  const nombreSeguro = (archivoReal.name || "fotografia.jpg")
+  .toLowerCase()
+  .replace(/\s+/g, "-")
+  .replace(/[^a-z0-9._-]/g, "");
 
-  const nombreArchivo = `${Date.now()}-${nombreSeguro}`;
+const identificadorUnico = crypto.randomUUID();
 
-  const { error } = await supabase.storage
-    .from("productos")
-    .upload(nombreArchivo, archivoReal);
+const nombreArchivo = `${identificadorUnico}-${nombreSeguro}`;
+
+const { error } = await supabase.storage
+  .from("productos")
+  .upload(nombreArchivo, archivoReal, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: archivoReal.type,
+  });
+
+if (error) {
+  console.error("Error subiendo imagen:", error);
+  throw error;
+}
 
   if (error) {
     throw error;
