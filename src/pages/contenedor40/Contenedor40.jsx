@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "../../styles/Contenedor40.css";
+import { supabase } from "../../lib/supabase";
 
 const STORAGE_KEY = "motores";
 
@@ -212,34 +213,54 @@ function abrirGaleria(motor) {
     alert("Motor actualizado correctamente.");
   }
 
-  function transferirMotor() {
-    if (!productoSeleccionado) return;
+  async function transferirMotor() {
+  if (!productoSeleccionado) return;
 
-    if (!destinoTransferencia) {
-      alert("Selecciona el destino del motor.");
-      return;
-    }
-
-    if (destinoTransferencia === "contenedor40") {
-      alert("El motor ya se encuentra en el Contenedor 40.");
-      return;
-    }
-
-    const actualizados = productos.map((producto) => {
-      if (producto.id !== productoSeleccionado.id) return producto;
-
-      return {
-        ...producto,
-        ubicacion: destinoTransferencia,
-        destino: destinoTransferencia,
-        actualizadoEn: new Date().toISOString(),
-      };
-    });
-
-    guardarProductos(actualizados);
-    cerrarModal();
-    alert("Motor transferido correctamente.");
+  if (!destinoTransferencia) {
+    alert("Selecciona el destino del motor.");
+    return;
   }
+
+  if (destinoTransferencia === "contenedor40") {
+    alert("El motor ya se encuentra en el Contenedor 40.");
+    return;
+  }
+
+  const destinoSupabase =
+    destinoTransferencia === "por-detal"
+      ? "detalle"
+      : destinoTransferencia;
+
+  const { error } = await supabase
+    .from("productos")
+    .update({
+      ubicacion: destinoSupabase,
+    })
+    .eq("id", productoSeleccionado.id);
+
+  if (error) {
+    console.error("Error al transferir en Supabase:", error);
+    alert("No se pudo actualizar el catálogo.");
+    return;
+  }
+
+  const actualizados = productos.map((producto) => {
+    if (producto.id !== productoSeleccionado.id) {
+      return producto;
+    }
+
+    return {
+      ...producto,
+      ubicacion: destinoTransferencia,
+      destino: destinoTransferencia,
+      actualizadoEn: new Date().toISOString(),
+    };
+  });
+
+  guardarProductos(actualizados);
+  cerrarModal();
+  alert("Motor transferido correctamente.");
+}
 
   function eliminarMotor() {
     if (!productoSeleccionado) return;

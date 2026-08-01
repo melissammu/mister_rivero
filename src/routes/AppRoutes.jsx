@@ -19,7 +19,7 @@ import CatalogoPublico from "../pages/catalogo/CatalogoPublico";
 import ProductoDetalle from "../pages/catalogo/ProductoDetalle";
 import RegistroUsuario from "../pages/authUsuario/RegistroUsuario";
 import LoginUsuario from "../pages/authUsuario/LoginUsuario";
-
+import Carrito from "../pages/carrito/Carrito";
 export default function AppRoutes() {
   return (
     <Routes>
@@ -31,7 +31,10 @@ export default function AppRoutes() {
         path="/"
         element={<Login />}
       />
-
+      <Route
+  path="/carrito"
+  element={<Carrito />}
+/>
       <Route
         path="/catalogo"
         element={<CatalogoPublico />}
@@ -59,7 +62,7 @@ export default function AppRoutes() {
             />
           }
         />
-
+        
         <Route
           path="dashboard"
           element={<Dashboard />}

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "../../styles/Contenedor80.css";
 const STORAGE_KEY = "motores";
+import { supabase } from "../../lib/supabase";
 
 const ESTADOS = ["Disponible", "Reservado", "Vendido"];
 

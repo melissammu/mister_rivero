@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../../lib/supabase";
 import {
   FaArrowLeft,
   FaCamera,
@@ -140,11 +141,11 @@ function RegistrarMotor() {
 
     lector.onload = () => {
       const nuevaImagen = {
-        id: generarId(),
-        url: lector.result,
-        nombre: archivo.name,
-      };
-
+  id: generarId(),
+  url: lector.result,
+  nombre: archivo.name,
+  archivo: archivo,
+};
       setImagenes((imagenesAnteriores) => {
         if (imagenesAnteriores.length >= 3) {
           alert("Solo puedes agregar hasta 3 fotos.");
@@ -348,7 +349,7 @@ function RegistrarMotor() {
     return true;
   };
 
-  const guardarProducto = (evento) => {
+  const guardarProducto = async (evento) => {
     evento.preventDefault();
 
     if (!validarFormulario()) {
@@ -356,6 +357,36 @@ function RegistrarMotor() {
     }
 
     try {
+      let imagenesSubidas = [];
+
+for (const imagen of imagenes) {
+  const archivoReal = imagen.archivo;
+
+  if (!archivoReal) {
+    throw new Error("No se encontró el archivo original de la fotografía.");
+  }
+
+  const nombreSeguro = archivoReal.name.replace(
+    /[^a-zA-Z0-9._-]/g,
+    "_"
+  );
+
+  const nombreArchivo = `${Date.now()}-${nombreSeguro}`;
+
+  const { error } = await supabase.storage
+    .from("productos")
+    .upload(nombreArchivo, archivoReal);
+
+  if (error) {
+    throw error;
+  }
+
+  const { data } = supabase.storage
+    .from("productos")
+    .getPublicUrl(nombreArchivo);
+
+  imagenesSubidas.push(data.publicUrl);
+}
       const esMotor =
         producto.tipo === "motor";
 
@@ -392,10 +423,10 @@ function RegistrarMotor() {
 
           ubicacion: producto.ubicacion,
 
-        imagenes,
+        imagenes: imagenesSubidas,
 
         imagenPrincipal:
-          imagenes[0]?.url || "",
+        imagenesSubidas[0] || "",
 
         marca: producto.marca.trim(),
         modelo: producto.modelo.trim(),
@@ -421,7 +452,36 @@ function RegistrarMotor() {
         fechaRegistro: fechaActual,
         fechaActualizacion: fechaActual,
       };
+       const productoSupabase = {
+  codigo: nuevoProducto.codigo,
+  tipo: nuevoProducto.tipo,
 
+  ubicacion:
+    nuevoProducto.ubicacion === "por-detal"
+      ? "detalle"
+      : nuevoProducto.ubicacion,
+
+  nombre: `${nuevoProducto.marca} ${nuevoProducto.modelo}`.trim(),
+  marca: nuevoProducto.marca,
+  modelo: nuevoProducto.modelo,
+  anio: nuevoProducto.anio,
+  numero_serie: nuevoProducto.numeroSerie,
+  estado: String(nuevoProducto.estado).toLowerCase(),
+
+  precio_compra: nuevoProducto.precioCompra,
+  precio_venta: nuevoProducto.precioVenta,
+  stock: 1,
+  descripcion: nuevoProducto.descripcion,
+  imagenes: imagenesSubidas,
+};
+
+const { error: errorProducto } = await supabase
+  .from("productos")
+  .insert([productoSupabase]);
+
+if (errorProducto) {
+  throw errorProducto;
+}
       localStorage.setItem(
         claveAlmacenamiento,
         JSON.stringify([

@@ -1,10 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect,useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCarrito } from "../../context/CarritoContext";
 import {
   FaAmazon,
   FaBoxOpen,
   FaCar,
+  FaCartPlus,
   FaCartShopping,
+  FaCheck,
   FaChevronRight,
   FaHeart,
   FaMagnifyingGlass,
@@ -16,6 +19,7 @@ import {
 
 import motorPrincipal from "../../assets/motor-imagen.jpeg";
 import "../../styles/CatalogoPublico.css";
+import { supabase } from "../../lib/supabase";
 
 const SECCIONES = [
   {
@@ -67,7 +71,8 @@ function normalizar(valor = "") {
   return String(valor).trim().toLowerCase();
 }
 function obtenerNombreSeccion(tipo) {
-  const nombres = {
+ 
+    const nombres = {
     motores: "Motores",
     contenedor40: "Contenedor 40",
     contenedor80: "Contenedor 80",
@@ -121,13 +126,13 @@ function obtenerNombre(producto) {
 function obtenerPrecio(producto) {
   return (
     Number(
+      producto.precio_venta ??
       producto.precioVenta ??
-        producto.precio ??
-        0
+      producto.precio ??
+      0
     ) || 0
   );
 }
-
 function formatearPrecio(valor) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -136,53 +141,181 @@ function formatearPrecio(valor) {
 }
 
 export default function CatalogoPublico() {
+
+const [productosSupabase, setProductosSupabase] = useState([]);
+const [cargandoProductos, setCargandoProductos] = useState(true);
+const [errorProductos, setErrorProductos] = useState("");
+    
   const navigate = useNavigate();
+
+const {
+  agregarAlCarrito,
+  procesando,
+  cantidadProductos,
+} = useCarrito();
+
+const [productoAgregado, setProductoAgregado] = useState(null);
+const [mensajeCarrito, setMensajeCarrito] = useState("");
 
   const [seccionActiva, setSeccionActiva] =
     useState("motores");
 
   const [busqueda, setBusqueda] =
     useState("");
+useEffect(() => {
+  let componenteActivo = true;
 
-  const inventario = useMemo(() => {
-    const motores = leerProductos("motores");
-    const partes = leerProductos("partes");
+  async function cargarProductos() {
+    setCargandoProductos(true);
+    setErrorProductos("");
 
-    return {
-      motores: motores.filter(
-        (producto) =>
-          normalizar(producto.estado || "Disponible") ===
-            "disponible" &&
-          normalizar(producto.ubicacion || "detal") ===
-            "detal"
-      ),
+    try {
+      const { data, error } = await supabase
+        .from("productos")
+        .select("*")
+        .in("estado", ["disponible", "reservado"])
+        .order("created_at", {
+          ascending: false,
+        });
 
-      contenedor40: motores.filter(
-        (producto) =>
-          normalizar(producto.estado || "Disponible") ===
-            "disponible" &&
-          normalizar(producto.ubicacion) ===
-            "contenedor40"
-      ),
+      if (error) {
+        throw error;
+      }
 
-      contenedor80: motores.filter(
-        (producto) =>
-          normalizar(producto.estado || "Disponible") ===
-            "disponible" &&
-          normalizar(producto.ubicacion) ===
-            "contenedor80"
-      ),
+      if (componenteActivo) {
+        setProductosSupabase(data || []);
+      }
+    } catch (error) {
+      console.error(
+        "Error cargando productos:",
+        error
+      );
 
-      partes: partes.filter(
-        (producto) =>
-          normalizar(producto.estado || "Disponible") ===
-          "disponible"
-      ),
+      if (componenteActivo) {
+        setErrorProductos(
+          "No fue posible cargar los productos."
+        );
+        setProductosSupabase([]);
+      }
+    } finally {
+      if (componenteActivo) {
+        setCargandoProductos(false);
+      }
+    }
+  }
 
-      amazon: [],
-    };
-  }, []);
+  cargarProductos();
 
+  return () => {
+    componenteActivo = false;
+  };
+  
+}, []);
+async function manejarAgregarAlCarrito(producto) {
+  setMensajeCarrito("");
+
+  try {
+    const tipoProducto =
+      producto.tipo === "motor" ? "motor" : "autoparte";
+
+    await agregarAlCarrito(
+      producto,
+      tipoProducto,
+      1
+    );
+
+    const referencia =
+      producto.id ||
+      producto.codigo ||
+      producto.producto_id;
+
+    setProductoAgregado(referencia);
+
+    setMensajeCarrito(
+      "Producto agregado correctamente al carrito."
+    );
+
+    window.setTimeout(() => {
+      setProductoAgregado(null);
+      setMensajeCarrito("");
+    }, 2500);
+  } catch (error) {
+    console.error(
+      "Error al agregar al carrito:",
+      error
+    );
+
+    if (
+      error?.message === "USUARIO_NO_AUTENTICADO"
+    ) {
+      localStorage.setItem(
+        "rutaDespuesDelLogin",
+        window.location.pathname
+      );
+
+      navigate("/iniciar-sesion", {
+        state: {
+          desde: window.location.pathname,
+        },
+      });
+
+      return;
+    }
+
+    if (
+      error?.message === "MOTOR_YA_AGREGADO"
+    ) {
+      setMensajeCarrito(
+        "Este motor ya está en tu carrito."
+      );
+
+      return;
+    }
+
+    if (
+      error?.message === "RESERVA_ACTIVA"
+    ) {
+      setMensajeCarrito(
+        "Ya tienes una reserva activa. Finaliza el pago antes de modificar el carrito."
+      );
+
+      return;
+    }
+
+    setMensajeCarrito(
+      error?.message ||
+      "No fue posible agregar el producto."
+    );
+  }
+}
+const inventario = useMemo(() => {
+  return {
+    motores: productosSupabase.filter(
+      (producto) =>
+        producto.tipo === "motor" &&
+        producto.ubicacion === "detalle"
+    ),
+
+    contenedor40: productosSupabase.filter(
+      (producto) =>
+        producto.tipo === "motor" &&
+        producto.ubicacion === "contenedor40"
+    ),
+
+    contenedor80: productosSupabase.filter(
+      (producto) =>
+        producto.tipo === "motor" &&
+        producto.ubicacion === "contenedor80"
+    ),
+
+    partes: productosSupabase.filter(
+      (producto) => producto.tipo === "autoparte"
+    ),
+
+    amazon: [],
+  };
+}, [productosSupabase]);
+ 
  const productosActuales =
   inventario[seccionActiva] || [];
 
@@ -370,7 +503,18 @@ const enlace = `${
             {seccion.nombre}
           </button>
         ))}
+
+        <a
+  href="https://wa.me/12012792635"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="catalogo-contacto"
+>
+  <FaWhatsapp />
+  <span>Entra en contacto</span>
+</a>
       </nav>
+
 
       <section className="catalogo-hero">
         <div className="catalogo-hero-texto">
@@ -533,6 +677,20 @@ const enlace = `${
               Regresa más tarde para revisar nuevas
               publicaciones.
             </p>
+            {mensajeCarrito && (
+  <div className="mensaje-carrito">
+    {mensajeCarrito}
+  </div>
+)}
+
+<button
+  type="button"
+  className="boton-ir-carrito"
+  onClick={() => navigate("/carrito")}
+>
+  <FaCartShopping />
+  Carrito ({cantidadProductos})
+</button>
           </div>
         ) : (
           <div className="catalogo-grid">
@@ -604,28 +762,36 @@ const enlace = `${
                       </strong>
 
                       <div className="producto-card-acciones">
-                        <button
-                          type="button"
-                          className="boton-comprar"
-                          onClick={() =>
-                            abrirProducto(producto)
-                          }
-                        >
-                          <FaCartShopping />
-                          Comprar
-                        </button>
 
-                        <button
-                          type="button"
-                          className="boton-compartir"
-                          onClick={() =>
-                            compartirProducto(producto)
-                          }
-                          aria-label="Compartir producto"
-                        >
-                          <FaShareNodes />
-                        </button>
-                      </div>
+<button
+  type="button"
+  className="boton-comprar"
+  onClick={() => manejarAgregarAlCarrito(producto)}
+>
+  {productoAgregado === (producto.id || producto.codigo)
+    ? (
+      <>
+        <FaCheck />
+        Agregado
+      </>
+    )
+    : (
+      <>
+        <FaCartPlus />
+        Agregar al carrito
+      </>
+    )}
+</button>
+  <button
+    type="button"
+    className="boton-compartir"
+    onClick={() => compartirProducto(producto)}
+    aria-label="Compartir producto"
+  >
+    <FaShareNodes />
+  </button>
+
+</div>
                     </div>
                   </article>
                 );
@@ -635,15 +801,6 @@ const enlace = `${
         )}
       </section>
 
-      <a
-        className="catalogo-whatsapp-flotante"
-        href="https://wa.me/"
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Contactar por WhatsApp"
-      >
-        <FaWhatsapp />
-      </a>
     </main>
   );
 }

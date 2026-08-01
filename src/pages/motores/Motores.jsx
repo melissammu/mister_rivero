@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import "../../styles/Contenedor40.css";
 import "../../styles/Motores.css";
+import { supabase } from "../../lib/supabase";
 
 const STORAGE_KEY = "motores";
 
