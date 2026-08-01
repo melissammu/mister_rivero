@@ -43,7 +43,10 @@ function Sidebar() {
           <FaTools />
           <span>Partes</span>
         </NavLink>
-        
+        <NavLink to="/admin/pedidos">
+  <FaShoppingCart />
+  <span>Pedidos</span>
+</NavLink>
 
         <NavLink to="/admin/contenedor40">
           <FaBoxOpen />

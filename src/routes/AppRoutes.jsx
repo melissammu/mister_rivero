@@ -13,9 +13,12 @@ import RegistrarMotor from "../pages/motores/RegistrarMotor";
 import Contenedor40 from "../pages/contenedor40/Contenedor40";
 import Contenedor80 from "../pages/contenedor80/Contenedor80";
 import Partes from "../pages/partes/Partes";
+import Pedidos from "../pages/pedidos/Pedidos";
 
 import CatalogoPublico from "../pages/catalogo/CatalogoPublico";
 import ProductoDetalle from "../pages/catalogo/ProductoDetalle";
+import RegistroUsuario from "../pages/authUsuario/RegistroUsuario";
+import LoginUsuario from "../pages/authUsuario/LoginUsuario";
 
 export default function AppRoutes() {
   return (
@@ -42,11 +45,11 @@ export default function AppRoutes() {
       {/* ==============================
           PANEL ADMINISTRATIVO
       ============================== */}
-
-      <Route
+            <Route
         path="/admin"
         element={<AdminLayout />}
       >
+        
         <Route
           index
           element={
@@ -86,11 +89,18 @@ export default function AppRoutes() {
           path="partes"
           element={<Partes />}
         />
-      </Route>
+       </Route>
+       
+       <Route
+         path="pedidos"
+         element={<Pedidos />}
+        />
 
       {/* ==============================
           RUTA NO ENCONTRADA
       ============================== */}
+      <Route path="/crear-cuenta" element={<RegistroUsuario />} />
+      <Route path="/iniciar-sesion" element={<LoginUsuario />} />
 
       <Route
         path="*"
