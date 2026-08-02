@@ -296,15 +296,17 @@ function abrirGaleria(motor) {
       ubicacion: destinoSupabase,
     })
     .eq("id", productoSeleccionado.id)
-    .select()
-    .single();
+    .select();
 
   if (error) {
     console.error("Error transfiriendo motor:", error);
     alert(error.message || "No se pudo transferir el motor.");
     return;
   }
-
+if (!data || data.length === 0) {
+  alert("No se encontró el producto en Supabase.");
+  return;
+}
   console.log("Producto actualizado en Supabase:", data);
 
   setProductos((productosActuales) =>
