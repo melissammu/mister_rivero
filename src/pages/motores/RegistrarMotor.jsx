@@ -139,7 +139,7 @@ function RegistrarMotor() {
       return;
     }
 
-    const limiteEnBytes = 3 * 1024 * 1024;
+    const limiteEnBytes = 10 * 1024 * 1024;
 
     if (archivo.size > limiteEnBytes) {
       alert(
@@ -474,15 +474,31 @@ function RegistrarMotor() {
         ? "MTR"
         : "PAR";
 
-      const listaGuardada =
-        obtenerListaGuardada(
-          claveAlmacenamiento
-        );
+    const listaGuardada =
+  obtenerListaGuardada(
+    claveAlmacenamiento
+  );
 
-      const codigo = generarCodigo(
-        listaGuardada,
-        prefijo
-      );
+const {
+  data: productosExistentes,
+  error: errorCodigos,
+} = await supabase
+  .from("productos")
+  .select("codigo")
+  .like("codigo", `${prefijo}-%`);
+
+if (errorCodigos) {
+  throw errorCodigos;
+}
+
+const listaCodigos = Array.isArray(productosExistentes)
+  ? productosExistentes
+  : [];
+
+const codigo = generarCodigo(
+  listaCodigos,
+  prefijo
+);
 
       const fechaActual =
         new Date().toISOString();
@@ -927,21 +943,6 @@ function RegistrarMotor() {
           </h2>
 
           <div style={estilos.grid}>
-            <div style={estilos.campo}>
-              <label style={estilos.label}>
-                Código interno
-              </label>
-
-              <input
-                type="text"
-                value="Se asignará al guardar"
-                disabled
-                style={{
-                  ...estilos.input,
-                  ...estilos.inputDeshabilitado,
-                }}
-              />
-            </div>
 
             <div style={estilos.campo}>
               <label

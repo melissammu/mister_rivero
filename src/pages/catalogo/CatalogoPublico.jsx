@@ -145,6 +145,8 @@ export default function CatalogoPublico() {
 const [productosSupabase, setProductosSupabase] = useState([]);
 const [cargandoProductos, setCargandoProductos] = useState(true);
 const [errorProductos, setErrorProductos] = useState("");
+const [fotoSeleccionada, setFotoSeleccionada] =
+  useState({});
     
   const navigate = useNavigate();
 
@@ -162,6 +164,108 @@ const [mensajeCarrito, setMensajeCarrito] = useState("");
 
   const [busqueda, setBusqueda] =
     useState("");
+  const numeroWhatsApp = "12012792635";
+    const obtenerImagenesGaleria = (producto) => {
+  if (!producto) {
+    return [];
+  }
+
+  const resultado = [];
+
+  const agregarImagen = (imagen) => {
+    if (!imagen) return;
+
+    if (typeof imagen === "string") {
+      const url = imagen.trim();
+
+      if (url) resultado.push(url);
+
+      return;
+    }
+
+    if (typeof imagen === "object") {
+      const url =
+        imagen.url ||
+        imagen.publicUrl ||
+        imagen.src ||
+        imagen.imagen;
+
+      if (typeof url === "string" && url.trim()) {
+        resultado.push(url.trim());
+      }
+    }
+  };
+
+  if (Array.isArray(producto.imagenes)) {
+    producto.imagenes.forEach(agregarImagen);
+  } else if (typeof producto.imagenes === "string") {
+    try {
+      const lista = JSON.parse(producto.imagenes);
+
+      if (Array.isArray(lista)) {
+        lista.forEach(agregarImagen);
+      } else {
+        agregarImagen(producto.imagenes);
+      }
+    } catch {
+      agregarImagen(producto.imagenes);
+    }
+  }
+
+  agregarImagen(producto.imagenPrincipal);
+  agregarImagen(producto.imagen);
+  agregarImagen(producto.foto);
+
+  return [...new Set(resultado)];
+};
+const obtenerClaveProducto = (producto, indice) => {
+  return String(
+    producto?.id ||
+    producto?.codigo ||
+    `producto-${indice}`
+  );
+};
+const contactarPorWhatsApp = (producto) => {
+  const codigo =
+    producto?.codigo || "Sin código";
+
+  const nombre =
+    producto?.nombre ||
+    `${producto?.marca || ""} ${
+      producto?.modelo || ""
+    }`.trim() ||
+    "Producto";
+
+  const precio =
+    producto?.precio_venta ??
+    producto?.precioVenta ??
+    producto?.precio ??
+    0;
+
+  const precioFormateado =
+    formatearPrecio(Number(precio) || 0);
+
+  const mensaje = [
+    "Hola, estoy interesado en este producto de MR. RIVERO MOTORS:",
+    "",
+    `Producto: ${nombre}`,
+    `Código: ${codigo}`,
+    `Precio: ${precioFormateado}`,
+    "",
+    "¿Sigue disponible?",
+  ].join("\n");
+
+  const enlaceWhatsApp =
+    `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(
+      mensaje
+    )}`;
+
+  window.open(
+    enlaceWhatsApp,
+    "_blank",
+    "noopener,noreferrer"
+  );
+};
 useEffect(() => {
   let componenteActivo = true;
 
@@ -695,45 +799,101 @@ const enlace = `${
         ) : (
           <div className="catalogo-grid">
             {productosFiltrados.map(
-              (producto, indice) => {
-                const imagen =
-                  obtenerImagen(producto);
+  (producto, indice) => {
+    const imagenesGaleria =
+      obtenerImagenesGaleria(producto);
 
-                return (
-                  <article
-                    key={
-                      producto.id ||
-                      producto.codigo ||
-                      indice
-                    }
-                    className="catalogo-producto-card"
-                  >
-                    <div className="producto-card-imagen">
-                      {imagen ? (
-                        <img
-                          src={imagen}
-                          alt={obtenerNombre(producto)}
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="producto-sin-imagen">
-                          <FaCar />
-                        </div>
-                      )}
+    const claveProducto =
+      obtenerClaveProducto(
+        producto,
+        indice
+      );
 
-                      <span className="producto-disponible">
-                        Disponible
-                      </span>
+    const indiceFotoActual =
+      fotoSeleccionada[claveProducto] ?? 0;
 
-                      <button
-                        type="button"
-                        className="producto-favorito"
-                        aria-label="Agregar a favoritos"
-                      >
-                        <FaHeart />
-                      </button>
-                    </div>
+    const imagenPrincipal =
+      imagenesGaleria[indiceFotoActual] ||
+      imagenesGaleria[0] ||
+      obtenerImagen(producto) ||
+      "";
 
+    return (
+      <article
+        key={claveProducto}
+        className="catalogo-producto-card"
+      ><div className="producto-galeria">
+  <div className="producto-imagen-principal">
+    {imagenPrincipal ? (
+      <img
+        src={imagenPrincipal}
+        alt={obtenerNombre(producto)}
+        loading="lazy"
+      />
+    ) : (
+      <div className="producto-sin-imagen">
+        <FaCar />
+      </div>
+    )}
+
+    <span className="producto-disponible">
+      Disponible
+    </span>
+
+    {imagenesGaleria.length > 1 && (
+      <span className="producto-cantidad-fotos">
+        {indiceFotoActual + 1}/
+        {imagenesGaleria.length}
+      </span>
+    )}
+  </div>
+
+  {imagenesGaleria.length > 1 && (
+    <div className="producto-lista-miniaturas">
+      {imagenesGaleria
+        .slice(0, 4)
+        .map(
+          (
+            imagenMiniatura,
+            indiceMiniatura
+          ) => (
+            <button
+              type="button"
+              key={`${claveProducto}-${indiceMiniatura}`}
+              className={
+                indiceFotoActual ===
+                indiceMiniatura
+                  ? "producto-miniatura producto-miniatura-activa"
+                  : "producto-miniatura"
+              }
+              onClick={() =>
+                setFotoSeleccionada(
+                  (estadoAnterior) => ({
+                    ...estadoAnterior,
+                    [claveProducto]:
+                      indiceMiniatura,
+                  })
+                )
+              }
+              aria-label={`Mostrar fotografía ${
+                indiceMiniatura + 1
+              }`}
+            >
+              <img
+                src={imagenMiniatura}
+                alt={`Fotografía ${
+                  indiceMiniatura + 1
+                } de ${obtenerNombre(
+                  producto
+                )}`}
+                loading="lazy"
+              />
+            </button>
+          )
+        )}
+    </div>
+  )}
+</div>
                     <div className="producto-card-contenido">
                       <div className="producto-identificacion">
   <span className="producto-codigo">
@@ -768,28 +928,36 @@ const enlace = `${
   className="boton-comprar"
   onClick={() => manejarAgregarAlCarrito(producto)}
 >
-  {productoAgregado === (producto.id || producto.codigo)
-    ? (
-      <>
-        <FaCheck />
-        Agregado
-      </>
-    )
-    : (
-      <>
-        <FaCartPlus />
-        Agregar al carrito
-      </>
-    )}
+  {productoAgregado === (producto.id || producto.codigo) ? (
+    <>
+      <FaCheck />
+      Agregado
+    </>
+  ) : (
+    <>
+      <FaCartPlus />
+      Agregar al carrito
+    </>
+  )}
 </button>
-  <button
-    type="button"
-    className="boton-compartir"
-    onClick={() => compartirProducto(producto)}
-    aria-label="Compartir producto"
-  >
-    <FaShareNodes />
-  </button>
+
+<button
+  type="button"
+  className="boton-whatsapp"
+  onClick={() => contactarPorWhatsApp(producto)}
+  aria-label="Consultar por WhatsApp"
+>
+  <FaWhatsapp />
+</button>
+
+<button
+  type="button"
+  className="boton-compartir"
+  onClick={() => compartirProducto(producto)}
+  aria-label="Compartir producto"
+>
+  <FaShareNodes />
+</button>
 
 </div>
                     </div>
