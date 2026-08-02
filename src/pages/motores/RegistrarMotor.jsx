@@ -16,21 +16,23 @@ function RegistrarMotor() {
   const inputGaleriaRef = useRef(null);
 
   const [imagenes, setImagenes] = useState([]);
+  const [guardando, setGuardando] = useState(false);
 
   const [producto, setProducto] = useState({
-  tipo: "motor",
-  categoria: "",
-  ubicacion: "por-detal",
-  marca: "",
-  modelo: "",
-  anio: "",
-  numeroSerie: "",
-  estado: "Disponible",
-  precioCompra: "",
-  precioVenta: "",
-  gastosAdicionales: "",
-  descripcion: "",
-});
+    tipo: "motor",
+    categoria: "",
+    ubicacion: "detalle",
+    marca: "",
+    modelo: "",
+    anio: "",
+    numeroSerie: "",
+    estado: "Disponible",
+    precioCompra: "",
+    precioVenta: "",
+    gastosAdicionales: "",
+    descripcion: "",
+  });
+
   const manejarCambio = (evento) => {
     const { name, value } = evento.target;
 
@@ -48,32 +50,44 @@ function RegistrarMotor() {
         tipo === "motor"
           ? ""
           : datosAnteriores.categoria,
+      ubicacion:
+        tipo === "autoparte"
+          ? "detalle"
+          : datosAnteriores.ubicacion,
     }));
   };
 
   const convertirNumero = (valor) => {
-    if (
-      valor === null ||
-      valor === undefined ||
-      String(valor).trim() === ""
-    ) {
-      return 0;
-    }
-
-    let texto = String(valor)
+    let texto = String(valor ?? "")
       .trim()
-      .replace(/\s/g, "")
-      .replace(/R\$/gi, "");
+      .replace(/\$/g, "")
+      .replace(/\s/g, "");
 
-    if (texto.includes(",") && texto.includes(".")) {
-      texto = texto.replace(/\./g, "").replace(",", ".");
+    if (
+      texto.includes(",") &&
+      texto.includes(".")
+    ) {
+      texto = texto
+        .replace(/\./g, "")
+        .replace(",", ".");
     } else if (texto.includes(",")) {
       texto = texto.replace(",", ".");
     }
 
     const numero = Number(texto);
 
-    return Number.isFinite(numero) ? numero : 0;
+    return Number.isFinite(numero)
+      ? numero
+      : 0;
+  };
+
+  const formatearDolares = (valor) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(valor || 0));
   };
 
   const precioCompra = convertirNumero(
@@ -93,13 +107,6 @@ function RegistrarMotor() {
 
   const gananciaEstimada =
     precioVenta - costoTotal;
-
-  const formatearDinero = (valor) => {
-    return Number(valor || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-  };
 
   const generarId = () => {
     if (
@@ -126,14 +133,25 @@ function RegistrarMotor() {
     ];
 
     if (!tiposPermitidos.includes(archivo.type)) {
-      alert("La foto debe ser JPG, PNG o WEBP.");
+      alert(
+        "La fotografía debe ser JPG, PNG o WEBP."
+      );
       return;
     }
 
     const limiteEnBytes = 3 * 1024 * 1024;
 
     if (archivo.size > limiteEnBytes) {
-      alert("Cada foto debe pesar menos de 3 MB.");
+      alert(
+        "Cada fotografía debe pesar menos de 3 MB."
+      );
+      return;
+    }
+
+    if (imagenes.length >= 3) {
+      alert(
+        "Solo puedes agregar hasta 3 fotografías."
+      );
       return;
     }
 
@@ -141,14 +159,14 @@ function RegistrarMotor() {
 
     lector.onload = () => {
       const nuevaImagen = {
-  id: generarId(),
-  url: lector.result,
-  nombre: archivo.name,
-  archivo: archivo,
-};
+        id: generarId(),
+        url: lector.result,
+        nombre: archivo.name,
+        archivo,
+      };
+
       setImagenes((imagenesAnteriores) => {
         if (imagenesAnteriores.length >= 3) {
-          alert("Solo puedes agregar hasta 3 fotos.");
           return imagenesAnteriores;
         }
 
@@ -160,17 +178,19 @@ function RegistrarMotor() {
     };
 
     lector.onerror = () => {
-      alert("No se pudo leer la fotografía.");
+      alert(
+        "No fue posible leer la fotografía."
+      );
     };
 
     lector.readAsDataURL(archivo);
   };
 
   const manejarFotoCamara = (evento) => {
-    const archivo = evento.target.files?.[0];
+    const archivo =
+      evento.target.files?.[0];
 
     agregarArchivo(archivo);
-
     evento.target.value = "";
   };
 
@@ -183,23 +203,26 @@ function RegistrarMotor() {
       3 - imagenes.length;
 
     if (espaciosDisponibles <= 0) {
-      alert("Ya agregaste las 3 fotos permitidas.");
+      alert(
+        "Ya agregaste las 3 fotografías permitidas."
+      );
       evento.target.value = "";
       return;
     }
 
-    const archivosPermitidos = archivos.slice(
-      0,
-      espaciosDisponibles
-    );
+    const archivosPermitidos =
+      archivos.slice(0, espaciosDisponibles);
 
     archivosPermitidos.forEach((archivo) => {
       agregarArchivo(archivo);
     });
 
-    if (archivos.length > espaciosDisponibles) {
+    if (
+      archivos.length >
+      espaciosDisponibles
+    ) {
       alert(
-        `Solo se agregaron ${espaciosDisponibles} foto(s), porque el límite es 3.`
+        `Solo se agregaron ${espaciosDisponibles} fotografía(s).`
       );
     }
 
@@ -214,11 +237,14 @@ function RegistrarMotor() {
     );
   };
 
-  const convertirEnPrincipal = (idImagen) => {
+  const convertirEnPrincipal = (
+    idImagen
+  ) => {
     setImagenes((imagenesAnteriores) => {
       const imagenSeleccionada =
         imagenesAnteriores.find(
-          (imagen) => imagen.id === idImagen
+          (imagen) =>
+            imagen.id === idImagen
         );
 
       if (!imagenSeleccionada) {
@@ -227,7 +253,8 @@ function RegistrarMotor() {
 
       const otrasImagenes =
         imagenesAnteriores.filter(
-          (imagen) => imagen.id !== idImagen
+          (imagen) =>
+            imagen.id !== idImagen
         );
 
       return [
@@ -239,7 +266,8 @@ function RegistrarMotor() {
 
   const obtenerListaGuardada = (clave) => {
     try {
-      const contenido = localStorage.getItem(clave);
+      const contenido =
+        localStorage.getItem(clave);
 
       if (!contenido) {
         return [];
@@ -247,7 +275,9 @@ function RegistrarMotor() {
 
       const lista = JSON.parse(contenido);
 
-      return Array.isArray(lista) ? lista : [];
+      return Array.isArray(lista)
+        ? lista
+        : [];
     } catch (error) {
       console.error(
         `Error al leer ${clave}:`,
@@ -262,21 +292,23 @@ function RegistrarMotor() {
     listaGuardada,
     prefijo
   ) => {
-    const numerosExistentes = listaGuardada.map(
-      (elemento) => {
+    const numerosExistentes =
+      listaGuardada.map((elemento) => {
         const codigo = String(
           elemento.codigo || ""
         );
 
         const numero = Number(
-          codigo.replace(`${prefijo}-`, "")
+          codigo.replace(
+            `${prefijo}-`,
+            ""
+          )
         );
 
         return Number.isNaN(numero)
           ? 0
           : numero;
-      }
-    );
+      });
 
     const ultimoNumero =
       numerosExistentes.length > 0
@@ -290,7 +322,9 @@ function RegistrarMotor() {
 
   const validarFormulario = () => {
     if (imagenes.length === 0) {
-      alert("Debes agregar al menos una foto.");
+      alert(
+        "Debes agregar al menos una fotografía."
+      );
       return false;
     }
 
@@ -347,63 +381,94 @@ function RegistrarMotor() {
     }
 
     return true;
-  };
-
-  const guardarProducto = async (evento) => {
+  };const guardarProducto = async (
+    evento
+  ) => {
     evento.preventDefault();
+
+    if (guardando) {
+      return;
+    }
 
     if (!validarFormulario()) {
       return;
     }
 
+    setGuardando(true);
+
     try {
-      let imagenesSubidas = [];
+      const imagenesSubidas = [];
 
-for (const imagen of imagenes) {
-  const archivoReal = imagen.archivo;
+      for (const imagen of imagenes) {
+        const archivoReal =
+          imagen.archivo;
 
-  if (!archivoReal) {
-    throw new Error("No se encontró el archivo original de la fotografía.");
-  }
+        if (!archivoReal) {
+          throw new Error(
+            "No se encontró el archivo original."
+          );
+        }
 
-  const nombreSeguro = (archivoReal.name || "fotografia.jpg")
-  .toLowerCase()
-  .replace(/\s+/g, "-")
-  .replace(/[^a-z0-9._-]/g, "");
+        const nombreSeguro = (
+          archivoReal.name ||
+          "fotografia.jpg"
+        )
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(
+            /[^a-z0-9._-]/g,
+            ""
+          );
 
-const identificadorUnico = crypto.randomUUID();
+        const identificadorUnico =
+          generarId();
 
-const nombreArchivo = `${identificadorUnico}-${nombreSeguro}`;
+        const nombreArchivo =
+          `${identificadorUnico}-${nombreSeguro}`;
 
-const { error } = await supabase.storage
-  .from("productos")
-  .upload(nombreArchivo, archivoReal, {
-    cacheControl: "3600",
-    upsert: false,
-    contentType: archivoReal.type,
-  });
+        const {
+          error: errorImagen,
+        } = await supabase.storage
+          .from("productos")
+          .upload(
+            nombreArchivo,
+            archivoReal,
+            {
+              cacheControl: "3600",
+              upsert: false,
+              contentType:
+                archivoReal.type,
+            }
+          );
 
-if (error) {
-  console.error("Error subiendo imagen:", error);
-  throw error;
-}
+        if (errorImagen) {
+          console.error(
+            "Error subiendo imagen:",
+            errorImagen
+          );
 
-  if (error) {
-    throw error;
-  }
+          throw errorImagen;
+        }
 
-  const { data } = supabase.storage
-    .from("productos")
-    .getPublicUrl(nombreArchivo);
+        const { data } =
+          supabase.storage
+            .from("productos")
+            .getPublicUrl(
+              nombreArchivo
+            );
 
-  imagenesSubidas.push(data.publicUrl);
-}
+        imagenesSubidas.push(
+          data.publicUrl
+        );
+      }
+
       const esMotor =
         producto.tipo === "motor";
 
-      const claveAlmacenamiento = esMotor
-        ? "motores"
-        : "partes";
+      const claveAlmacenamiento =
+        esMotor
+          ? "motores"
+          : "partes";
 
       const prefijo = esMotor
         ? "MTR"
@@ -425,19 +490,20 @@ if (error) {
       const nuevoProducto = {
         id: generarId(),
         codigo,
-
         tipo: producto.tipo,
 
         categoria: esMotor
           ? "Motor"
           : producto.categoria,
 
-          ubicacion: producto.ubicacion,
+        ubicacion: esMotor
+          ? producto.ubicacion
+          : "detalle",
 
         imagenes: imagenesSubidas,
 
         imagenPrincipal:
-        imagenesSubidas[0] || "",
+          imagenesSubidas[0] || "",
 
         marca: producto.marca.trim(),
         modelo: producto.modelo.trim(),
@@ -461,38 +527,70 @@ if (error) {
           producto.descripcion.trim(),
 
         fechaRegistro: fechaActual,
-        fechaActualizacion: fechaActual,
+        fechaActualizacion:
+          fechaActual,
       };
-       const productoSupabase = {
-  codigo: nuevoProducto.codigo,
-  tipo: nuevoProducto.tipo,
 
-  ubicacion:
-    nuevoProducto.ubicacion === "por-detal"
-      ? "detalle"
-      : nuevoProducto.ubicacion,
+      const productoSupabase = {
+        codigo:
+          nuevoProducto.codigo,
 
-  nombre: `${nuevoProducto.marca} ${nuevoProducto.modelo}`.trim(),
-  marca: nuevoProducto.marca,
-  modelo: nuevoProducto.modelo,
-  anio: nuevoProducto.anio,
-  numero_serie: nuevoProducto.numeroSerie,
-  estado: String(nuevoProducto.estado).toLowerCase(),
+        tipo:
+          nuevoProducto.tipo,
 
-  precio_compra: nuevoProducto.precioCompra,
-  precio_venta: nuevoProducto.precioVenta,
-  stock: 1,
-  descripcion: nuevoProducto.descripcion,
-  imagenes: imagenesSubidas,
-};
+        ubicacion:
+          nuevoProducto.ubicacion,
 
-const { error: errorProducto } = await supabase
-  .from("productos")
-  .insert([productoSupabase]);
+        nombre:
+          `${nuevoProducto.marca} ${nuevoProducto.modelo}`.trim(),
 
-if (errorProducto) {
-  throw errorProducto;
-}
+        marca:
+          nuevoProducto.marca,
+
+        modelo:
+          nuevoProducto.modelo,
+
+        anio:
+          nuevoProducto.anio,
+
+        numero_serie:
+          nuevoProducto.numeroSerie,
+
+        estado:
+          String(
+            nuevoProducto.estado
+          ).toLowerCase(),
+
+        precio_compra:
+          nuevoProducto.precioCompra,
+
+        precio_venta:
+          nuevoProducto.precioVenta,
+
+        stock: 1,
+
+        descripcion:
+          nuevoProducto.descripcion,
+
+        imagenes:
+          imagenesSubidas,
+      };
+
+      const {
+        error: errorProducto,
+      } = await supabase
+        .from("productos")
+        .insert([productoSupabase]);
+
+      if (errorProducto) {
+        console.error(
+          "Error guardando producto:",
+          errorProducto
+        );
+
+        throw errorProducto;
+      }
+
       localStorage.setItem(
         claveAlmacenamiento,
         JSON.stringify([
@@ -501,43 +599,52 @@ if (errorProducto) {
         ])
       );
 
-     alert(
-  `${esMotor ? "Motor" : "Autoparte"} ${codigo} registrado correctamente.`
-);
+      alert(
+        `${
+          esMotor
+            ? "Motor"
+            : "Autoparte"
+        } ${codigo} registrado correctamente.`
+      );
 
-if (!esMotor) {
-  navigate("/admin/partes");
-  return;
-}
+      if (!esMotor) {
+        navigate("/admin/partes");
+        return;
+      }
 
-if (producto.ubicacion === "contenedor40") {
-  navigate("/admin/contenedor40");
-  return;
-}
+      if (
+        producto.ubicacion ===
+        "contenedor40"
+      ) {
+        navigate(
+          "/admin/contenedor40"
+        );
+        return;
+      }
 
-if (producto.ubicacion === "contenedor80") {
-  navigate("/admin/contenedor80");
-  return;
-}
+      if (
+        producto.ubicacion ===
+        "contenedor80"
+      ) {
+        navigate(
+          "/admin/contenedor80"
+        );
+        return;
+      }
 
-navigate("/admin/motores");    } catch (error) {
+      navigate("/admin/motores");
+    } catch (error) {
       console.error(
         "Error al guardar:",
         error
       );
 
-      if (
-        error?.name === "QuotaExceededError"
-      ) {
-        alert(
-          "Las fotografías ocupan demasiado espacio. Usa imágenes más pequeñas."
-        );
-        return;
-      }
-
       alert(
-        "No se pudo guardar el producto."
+        error?.message ||
+          "No se pudo guardar el producto."
       );
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -554,8 +661,8 @@ navigate("/admin/motores");    } catch (error) {
           </h1>
 
           <p style={estilos.descripcion}>
-            Registra un motor o una autoparte con
-            un máximo de tres fotografías.
+            Registra motores y autopartes
+            con precios en dólares.
           </p>
         </div>
 
@@ -586,38 +693,52 @@ navigate("/admin/motores");    } catch (error) {
               }
               style={{
                 ...estilos.botonTipo,
-                ...(producto.tipo === "motor"
+                ...(producto.tipo ===
+                "motor"
                   ? estilos.botonTipoActivo
                   : {}),
               }}
             >
-              <strong style={estilos.tipoNombre}>
+              <strong
+                style={estilos.tipoNombre}
+              >
                 Motor
               </strong>
 
-              <span style={estilos.textoAyuda}>
-                Motor completo para vehículo.
+              <span
+                style={estilos.textoAyuda}
+              >
+                Motor completo para
+                vehículo.
               </span>
             </button>
 
             <button
               type="button"
               onClick={() =>
-                seleccionarTipo("autoparte")
+                seleccionarTipo(
+                  "autoparte"
+                )
               }
               style={{
                 ...estilos.botonTipo,
-                ...(producto.tipo === "autoparte"
+                ...(producto.tipo ===
+                "autoparte"
                   ? estilos.botonTipoActivo
                   : {}),
               }}
             >
-              <strong style={estilos.tipoNombre}>
+              <strong
+                style={estilos.tipoNombre}
+              >
                 Autoparte
               </strong>
 
-              <span style={estilos.textoAyuda}>
-                Pieza o componente del vehículo.
+              <span
+                style={estilos.textoAyuda}
+              >
+                Pieza, accesorio o
+                componente.
               </span>
             </button>
           </div>
@@ -629,8 +750,9 @@ navigate("/admin/motores");    } catch (error) {
           </h2>
 
           <p style={estilos.textoAyuda}>
-            Agrega entre una y tres fotografías.
-            La primera será la foto principal.
+            Agrega entre una y tres
+            fotografías. La primera será
+            la principal.
           </p>
 
           <input
@@ -638,7 +760,9 @@ navigate("/admin/motores");    } catch (error) {
             type="file"
             accept="image/*"
             capture="environment"
-            onChange={manejarFotoCamara}
+            onChange={
+              manejarFotoCamara
+            }
             style={estilos.inputOculto}
           />
 
@@ -647,37 +771,54 @@ navigate("/admin/motores");    } catch (error) {
             type="file"
             accept="image/jpeg,image/png,image/webp"
             multiple
-            onChange={manejarFotosGaleria}
+            onChange={
+              manejarFotosGaleria
+            }
             style={estilos.inputOculto}
           />
 
           {imagenes.length === 0 ? (
             <div style={estilos.areaImagen}>
-              <FaImage style={estilos.iconoImagen} />
+              <FaImage
+                style={
+                  estilos.iconoImagen
+                }
+              />
 
               <strong>
-                Todavía no hay fotografías
+                No hay fotografías
               </strong>
 
-              <span style={estilos.textoAyuda}>
-                Puedes tomar una foto o elegirla
-                desde la galería.
+              <span
+                style={estilos.textoAyuda}
+              >
+                Toma una foto o
+                selecciónala desde la
+                galería.
               </span>
             </div>
           ) : (
-            <div style={estilos.galeriaImagenes}>
+            <div
+              style={
+                estilos.galeriaImagenes
+              }
+            >
               {imagenes.map(
                 (imagen, indice) => (
                   <div
                     key={imagen.id}
-                    style={estilos.tarjetaImagen}
+                    style={
+                      estilos.tarjetaImagen
+                    }
                   >
                     <img
                       src={imagen.url}
                       alt={`Fotografía ${
                         indice + 1
                       }`}
-                      style={estilos.miniatura}
+                      style={
+                        estilos.miniatura
+                      }
                     />
 
                     {indice === 0 && (
@@ -686,11 +827,15 @@ navigate("/admin/motores");    } catch (error) {
                           estilos.etiquetaPrincipal
                         }
                       >
-                        Foto principal
+                        Principal
                       </span>
                     )}
 
-                    <p style={estilos.nombreImagen}>
+                    <p
+                      style={
+                        estilos.nombreImagen
+                      }
+                    >
                       {imagen.nombre}
                     </p>
 
@@ -737,13 +882,19 @@ navigate("/admin/motores");    } catch (error) {
           )}
 
           {imagenes.length < 3 && (
-            <div style={estilos.botonesImagen}>
+            <div
+              style={
+                estilos.botonesImagen
+              }
+            >
               <button
                 type="button"
                 onClick={() =>
                   inputCamaraRef.current?.click()
                 }
-                style={estilos.botonCamara}
+                style={
+                  estilos.botonCamara
+                }
               >
                 <FaCamera />
                 Tomar foto
@@ -754,7 +905,9 @@ navigate("/admin/motores");    } catch (error) {
                 onClick={() =>
                   inputGaleriaRef.current?.click()
                 }
-                style={estilos.botonSecundario}
+                style={
+                  estilos.botonSecundario
+                }
               >
                 <FaImage />
                 Agregar foto
@@ -763,7 +916,8 @@ navigate("/admin/motores");    } catch (error) {
           )}
 
           <p style={estilos.contadorFotos}>
-            {imagenes.length} de 3 fotografías
+            {imagenes.length} de 3
+            fotografías
           </p>
         </section>
 
@@ -804,34 +958,6 @@ navigate("/admin/motores");    } catch (error) {
                 onChange={manejarCambio}
                 style={estilos.input}
               >
-                <div style={estilos.campo}>
-  <label
-    htmlFor="ubicacion"
-    style={estilos.label}
-  >
-    Ubicación inicial *
-  </label>
-
-  <select
-    id="ubicacion"
-    name="ubicacion"
-    value={producto.ubicacion}
-    onChange={manejarCambio}
-    style={estilos.input}
-  >
-    <option value="contenedor-40">
-      Contenedor 40
-    </option>
-
-    <option value="contenedor-80">
-      Contenedor 80
-    </option>
-
-    <option value="por-detal">
-      Por detal
-    </option>
-  </select>
-</div>
                 <option value="Disponible">
                   Disponible
                 </option>
@@ -847,24 +973,65 @@ navigate("/admin/motores");    } catch (error) {
             </div>
 
             {producto.tipo ===
+              "motor" && (
+              <div style={estilos.campo}>
+                <label
+                  htmlFor="ubicacion"
+                  style={estilos.label}
+                >
+                  Ubicación inicial
+                </label>
+
+                <select
+                  id="ubicacion"
+                  name="ubicacion"
+                  value={
+                    producto.ubicacion
+                  }
+                  onChange={
+                    manejarCambio
+                  }
+                  style={estilos.input}
+                >
+                  <option value="detalle">
+                    Motor al detal
+                  </option>
+
+                  <option value="contenedor40">
+                    Contenedor 40
+                  </option>
+
+                  <option value="contenedor80">
+                    Contenedor 80
+                  </option>
+                </select>
+              </div>
+            )}
+
+            {producto.tipo ===
               "autoparte" && (
               <div style={estilos.campo}>
                 <label
                   htmlFor="categoria"
                   style={estilos.label}
                 >
-                  Categoría *
+                  Categoría
                 </label>
 
                 <select
                   id="categoria"
                   name="categoria"
-                  value={producto.categoria}
-                  onChange={manejarCambio}
+                  value={
+                    producto.categoria
+                  }
+                  onChange={
+                    manejarCambio
+                  }
                   style={estilos.input}
                 >
                   <option value="">
-                    Selecciona una categoría
+                    Selecciona una
+                    categoría
                   </option>
 
                   <option value="Transmisión">
@@ -905,15 +1072,13 @@ navigate("/admin/motores");    } catch (error) {
                 </select>
               </div>
             )}
-<h2 style={estilos.subtitulo}>
-  3. Información del producto
-</h2>
+
             <div style={estilos.campo}>
               <label
                 htmlFor="marca"
                 style={estilos.label}
               >
-                Marca *
+                Marca
               </label>
 
               <input
@@ -932,7 +1097,7 @@ navigate("/admin/motores");    } catch (error) {
                 htmlFor="modelo"
                 style={estilos.label}
               >
-                Modelo *
+                Modelo
               </label>
 
               <input
@@ -978,7 +1143,9 @@ navigate("/admin/motores");    } catch (error) {
                 id="numeroSerie"
                 name="numeroSerie"
                 type="text"
-                value={producto.numeroSerie}
+                value={
+                  producto.numeroSerie
+                }
                 onChange={manejarCambio}
                 placeholder="Opcional"
                 style={estilos.input}
@@ -986,10 +1153,9 @@ navigate("/admin/motores");    } catch (error) {
             </div>
           </div>
         </section>
-
         <section style={estilos.seccion}>
           <h2 style={estilos.subtitulo}>
-            4. Valores
+            4. Valores en dólares
           </h2>
 
           <div style={estilos.grid}>
@@ -998,7 +1164,7 @@ navigate("/admin/motores");    } catch (error) {
                 htmlFor="precioCompra"
                 style={estilos.label}
               >
-                Precio de compra *
+                Precio de compra
               </label>
 
               <input
@@ -1006,9 +1172,11 @@ navigate("/admin/motores");    } catch (error) {
                 name="precioCompra"
                 type="text"
                 inputMode="decimal"
-                value={producto.precioCompra}
+                value={
+                  producto.precioCompra
+                }
                 onChange={manejarCambio}
-                placeholder="Ejemplo: 1.500,00"
+                placeholder="Ejemplo: 1500.00"
                 style={estilos.input}
               />
             </div>
@@ -1030,7 +1198,7 @@ navigate("/admin/motores");    } catch (error) {
                   producto.gastosAdicionales
                 }
                 onChange={manejarCambio}
-                placeholder="Ejemplo: 300,00"
+                placeholder="Ejemplo: 300.00"
                 style={estilos.input}
               />
             </div>
@@ -1040,7 +1208,7 @@ navigate("/admin/motores");    } catch (error) {
                 htmlFor="precioVenta"
                 style={estilos.label}
               >
-                Precio de venta *
+                Precio de venta
               </label>
 
               <input
@@ -1048,27 +1216,43 @@ navigate("/admin/motores");    } catch (error) {
                 name="precioVenta"
                 type="text"
                 inputMode="decimal"
-                value={producto.precioVenta}
+                value={
+                  producto.precioVenta
+                }
                 onChange={manejarCambio}
-                placeholder="Ejemplo: 2.500,00"
+                placeholder="Ejemplo: 2500.00"
                 style={estilos.input}
               />
             </div>
           </div>
 
           <div style={estilos.resumen}>
-            <div style={estilos.resumenItem}>
-              <span style={estilos.textoAyuda}>
+            <div
+              style={estilos.resumenItem}
+            >
+              <span
+                style={estilos.textoAyuda}
+              >
                 Costo total
               </span>
 
-              <strong style={estilos.valorResumen}>
-                {formatearDinero(costoTotal)}
+              <strong
+                style={
+                  estilos.valorResumen
+                }
+              >
+                {formatearDolares(
+                  costoTotal
+                )}
               </strong>
             </div>
 
-            <div style={estilos.resumenItem}>
-              <span style={estilos.textoAyuda}>
+            <div
+              style={estilos.resumenItem}
+            >
+              <span
+                style={estilos.textoAyuda}
+              >
                 Ganancia estimada
               </span>
 
@@ -1081,7 +1265,7 @@ navigate("/admin/motores");    } catch (error) {
                       : "#f4c430",
                 }}
               >
-                {formatearDinero(
+                {formatearDolares(
                   gananciaEstimada
                 )}
               </strong>
@@ -1099,16 +1283,18 @@ navigate("/admin/motores");    } catch (error) {
               htmlFor="descripcion"
               style={estilos.label}
             >
-              Descripción del producto *
+              Descripción del producto
             </label>
 
             <textarea
               id="descripcion"
               name="descripcion"
               rows="5"
-              value={producto.descripcion}
+              value={
+                producto.descripcion
+              }
               onChange={manejarCambio}
-              placeholder="Describe su condición, características y cualquier información importante."
+              placeholder="Describe la condición, características e información importante."
               style={estilos.textarea}
             />
           </div>
@@ -1118,6 +1304,7 @@ navigate("/admin/motores");    } catch (error) {
           <button
             type="button"
             onClick={cancelarRegistro}
+            disabled={guardando}
             style={estilos.botonSecundario}
           >
             Cancelar
@@ -1125,36 +1312,55 @@ navigate("/admin/motores");    } catch (error) {
 
           <button
             type="submit"
-            style={estilos.botonGuardar}
+            disabled={guardando}
+            style={{
+              ...estilos.botonGuardar,
+              opacity:
+                guardando ? 0.7 : 1,
+              cursor:
+                guardando
+                  ? "not-allowed"
+                  : "pointer",
+            }}
           >
             <FaSave />
-            Guardar producto
+
+            {guardando
+              ? "Guardando..."
+              : "Guardar producto"}
           </button>
         </div>
       </form>
     </section>
   );
 }
+
 const estilos = {
   pagina: {
     width: "100%",
+    maxWidth: "1200px",
+    margin: "0 auto",
     boxSizing: "border-box",
-    padding: "28px",
+    padding:
+      "clamp(14px, 4vw, 28px)",
     color: "#ffffff",
   },
 
   encabezado: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent:
+      "space-between",
     alignItems: "flex-start",
     flexWrap: "wrap",
-    gap: "20px",
+    gap: "16px",
     marginBottom: "24px",
   },
 
   titulo: {
     margin: 0,
-    fontSize: "30px",
+    fontSize:
+      "clamp(24px, 6vw, 32px)",
+    lineHeight: 1.15,
     fontWeight: "800",
   },
 
@@ -1162,43 +1368,48 @@ const estilos = {
     margin: "8px 0 0",
     color: "#a7adb7",
     fontSize: "15px",
+    lineHeight: 1.5,
   },
 
   formulario: {
     width: "100%",
-    maxWidth: "1000px",
     boxSizing: "border-box",
-    padding: "24px",
+    padding:
+      "clamp(16px, 4vw, 26px)",
     border: "1px solid #343943",
-    borderRadius: "12px",
+    borderRadius: "14px",
     background:
       "linear-gradient(135deg, #20252d 0%, #15191f 100%)",
     boxShadow:
-      "0 10px 25px rgba(0, 0, 0, 0.18)",
+      "0 10px 25px rgba(0,0,0,0.18)",
   },
 
   seccion: {
-    paddingBottom: "25px",
-    marginBottom: "25px",
-    borderBottom: "1px solid #343943",
+    paddingBottom: "24px",
+    marginBottom: "24px",
+    borderBottom:
+      "1px solid #343943",
   },
 
   subtitulo: {
     margin: "0 0 15px",
-    fontSize: "19px",
+    fontSize:
+      "clamp(18px, 5vw, 21px)",
+    lineHeight: 1.25,
     fontWeight: "800",
   },
 
   textoAyuda: {
     color: "#a7adb7",
     fontSize: "14px",
+    lineHeight: 1.5,
   },
 
   tipoGrid: {
     display: "grid",
     gridTemplateColumns:
-      "repeat(auto-fit, minmax(230px, 1fr))",
-    gap: "15px",
+      "repeat(auto-fit, minmax(210px, 1fr))",
+    gap: "14px",
   },
 
   botonTipo: {
@@ -1206,9 +1417,10 @@ const estilos = {
     flexDirection: "column",
     alignItems: "flex-start",
     gap: "7px",
+    minHeight: "110px",
     padding: "18px",
     border: "1px solid #48505c",
-    borderRadius: "9px",
+    borderRadius: "10px",
     background: "#101319",
     color: "#ffffff",
     textAlign: "left",
@@ -1230,13 +1442,15 @@ const estilos = {
 
   areaImagen: {
     display: "flex",
-    minHeight: "190px",
-    padding: "24px",
+    minHeight: "180px",
+    boxSizing: "border-box",
+    padding: "22px",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     gap: "10px",
-    border: "2px dashed #4a515d",
+    border:
+      "2px dashed #4a515d",
     borderRadius: "10px",
     background: "#101319",
     textAlign: "center",
@@ -1257,12 +1471,14 @@ const estilos = {
 
   botonCamara: {
     display: "flex",
+    minHeight: "46px",
+    flex: "1 1 170px",
     alignItems: "center",
     justifyContent: "center",
     gap: "8px",
     padding: "12px 17px",
     border: "none",
-    borderRadius: "7px",
+    borderRadius: "8px",
     background: "#f4c430",
     color: "#151515",
     fontWeight: "800",
@@ -1271,12 +1487,13 @@ const estilos = {
 
   botonSecundario: {
     display: "flex",
+    minHeight: "46px",
     alignItems: "center",
     justifyContent: "center",
     gap: "8px",
     padding: "11px 16px",
     border: "1px solid #4a515d",
-    borderRadius: "7px",
+    borderRadius: "8px",
     background: "#242932",
     color: "#ffffff",
     fontWeight: "700",
@@ -1286,13 +1503,14 @@ const estilos = {
   galeriaImagenes: {
     display: "grid",
     gridTemplateColumns:
-      "repeat(auto-fit, minmax(210px, 1fr))",
+      "repeat(auto-fit, minmax(190px, 1fr))",
     gap: "15px",
     marginTop: "15px",
   },
 
   tarjetaImagen: {
     position: "relative",
+    minWidth: 0,
     padding: "10px",
     border: "1px solid #424a56",
     borderRadius: "10px",
@@ -1336,8 +1554,7 @@ const estilos = {
   },
 
   botonPrincipal: {
-    flex: 1,
-    minWidth: "120px",
+    flex: "1 1 120px",
     padding: "9px 10px",
     border: "1px solid #8b7720",
     borderRadius: "6px",
@@ -1349,8 +1566,7 @@ const estilos = {
 
   botonEliminar: {
     display: "flex",
-    flex: 1,
-    minWidth: "105px",
+    flex: "1 1 105px",
     alignItems: "center",
     justifyContent: "center",
     gap: "6px",
@@ -1372,12 +1588,13 @@ const estilos = {
   grid: {
     display: "grid",
     gridTemplateColumns:
-      "repeat(auto-fit, minmax(260px, 1fr))",
+      "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
     gap: "18px",
   },
 
   campo: {
     display: "flex",
+    minWidth: 0,
     flexDirection: "column",
     gap: "8px",
   },
@@ -1389,13 +1606,15 @@ const estilos = {
 
   input: {
     width: "100%",
+    minWidth: 0,
+    minHeight: "46px",
     boxSizing: "border-box",
     padding: "12px 13px",
     border: "1px solid #4a515d",
     borderRadius: "7px",
     background: "#101319",
     color: "#ffffff",
-    fontSize: "15px",
+    fontSize: "16px",
     outline: "none",
   },
 
@@ -1407,14 +1626,14 @@ const estilos = {
 
   textarea: {
     width: "100%",
-    minHeight: "120px",
+    minHeight: "130px",
     boxSizing: "border-box",
     padding: "12px 13px",
     border: "1px solid #4a515d",
     borderRadius: "7px",
     background: "#101319",
     color: "#ffffff",
-    fontSize: "15px",
+    fontSize: "16px",
     outline: "none",
     resize: "vertical",
   },
@@ -1422,13 +1641,14 @@ const estilos = {
   resumen: {
     display: "grid",
     gridTemplateColumns:
-      "repeat(auto-fit, minmax(240px, 1fr))",
+      "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
     gap: "18px",
     marginTop: "22px",
   },
 
   resumenItem: {
     display: "flex",
+    minWidth: 0,
     flexDirection: "column",
     gap: "7px",
     padding: "17px",
@@ -1439,7 +1659,9 @@ const estilos = {
 
   valorResumen: {
     color: "#f4c430",
-    fontSize: "23px",
+    fontSize:
+      "clamp(21px, 6vw, 25px)",
+    overflowWrap: "anywhere",
   },
 
   acciones: {
@@ -1451,6 +1673,7 @@ const estilos = {
 
   botonGuardar: {
     display: "flex",
+    minHeight: "46px",
     alignItems: "center",
     justifyContent: "center",
     gap: "8px",
@@ -1460,7 +1683,6 @@ const estilos = {
     background: "#f4c430",
     color: "#151515",
     fontWeight: "800",
-    cursor: "pointer",
   },
 };
 

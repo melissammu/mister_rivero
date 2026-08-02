@@ -1,11 +1,23 @@
+import { FaBars } from "react-icons/fa";
 import "../../styles/Navbar.css";
 
-function Navbar() {
+function Navbar({ abrirMenu }) {
   return (
     <header className="navbar">
-      <div>
-        <h1>Panel de Administración</h1>
-        <p>Gestión de motores, piezas y contenedores</p>
+      <div className="navbar-left">
+        <button
+          type="button"
+          className="navbar-menu-button"
+          onClick={abrirMenu}
+          aria-label="Abrir menú"
+        >
+          <FaBars />
+        </button>
+
+        <div className="navbar-title">
+          <h1>Panel de Administración</h1>
+          <p>Gestión de motores, partes y contenedores</p>
+        </div>
       </div>
 
       <div className="navbar-user">

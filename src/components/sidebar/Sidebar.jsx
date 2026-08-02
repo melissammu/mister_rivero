@@ -9,77 +9,125 @@ import {
   FaFileAlt,
   FaCog,
   FaSignOutAlt,
-  FaCogs,
+  FaTimes,
 } from "react-icons/fa";
 
 import "../../styles/Sidebar.css";
 
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <div className="sidebar-logo">
-        <span className="sidebar-logo-icon">
-          <FaCogs />
-        </span>
+function Sidebar({
+  menuAbierto,
+  cerrarMenu,
+}) {
+  const cerrarAlNavegar = () => {
+    cerrarMenu();
+  };
 
-        <div>
-          <h2>MR. RIVERO</h2>
-          <p>MOTORS</p>
+  return (
+    <aside
+      className={`sidebar ${
+        menuAbierto ? "sidebar-open" : ""
+      }`}
+    >
+      <div className="sidebar-header">
+        <div className="sidebar-brand">
+          <div className="sidebar-logo">
+            MR
+          </div>
+
+          <div>
+            <h2>MR. RIVERO</h2>
+            <p>MOTORS</p>
+          </div>
         </div>
+
+        <button
+          type="button"
+          className="sidebar-close"
+          onClick={cerrarMenu}
+          aria-label="Cerrar menú"
+        >
+          <FaTimes />
+        </button>
       </div>
 
       <nav className="sidebar-menu">
-        <NavLink to="/admin/dashboard">
+        <NavLink
+          to="/admin/dashboard"
+          onClick={cerrarAlNavegar}
+        >
           <FaChartLine />
           <span>Dashboard</span>
         </NavLink>
 
-        <NavLink to="/admin/motores">
+        <NavLink
+          to="/admin/motores"
+          onClick={cerrarAlNavegar}
+        >
           <FaCar />
           <span>Motores</span>
         </NavLink>
 
-        <NavLink to="/admin/partes">
+        <NavLink
+          to="/admin/partes"
+          onClick={cerrarAlNavegar}
+        >
           <FaTools />
           <span>Partes</span>
         </NavLink>
-        <NavLink to="/admin/pedidos">
-  <FaShoppingCart />
-  <span>Pedidos</span>
-</NavLink>
 
-        <NavLink to="/admin/contenedor40">
+        <NavLink
+          to="/admin/contenedor40"
+          onClick={cerrarAlNavegar}
+        >
           <FaBoxOpen />
           <span>Contenedor 40</span>
         </NavLink>
 
-        <NavLink to="/admin/contenedor80">
+        <NavLink
+          to="/admin/contenedor80"
+          onClick={cerrarAlNavegar}
+        >
           <FaBoxOpen />
           <span>Contenedor 80</span>
         </NavLink>
 
-        <NavLink to="/admin/pedidos">
+        <NavLink
+          to="/admin/pedidos"
+          onClick={cerrarAlNavegar}
+        >
           <FaShoppingCart />
           <span>Pedidos</span>
         </NavLink>
 
-        <NavLink to="/admin/usuarios">
+        <NavLink
+          to="/admin/usuarios"
+          onClick={cerrarAlNavegar}
+        >
           <FaUsers />
           <span>Usuarios</span>
         </NavLink>
 
-        <NavLink to="/admin/reportes">
+        <NavLink
+          to="/admin/reportes"
+          onClick={cerrarAlNavegar}
+        >
           <FaFileAlt />
           <span>Reportes</span>
         </NavLink>
 
-        <NavLink to="/admin/configuracion">
+        <NavLink
+          to="/admin/configuracion"
+          onClick={cerrarAlNavegar}
+        >
           <FaCog />
           <span>Configuración</span>
         </NavLink>
       </nav>
 
-      <button className="sidebar-logout" type="button">
+      <button
+        type="button"
+        className="sidebar-logout"
+      >
         <FaSignOutAlt />
         <span>Cerrar sesión</span>
       </button>
