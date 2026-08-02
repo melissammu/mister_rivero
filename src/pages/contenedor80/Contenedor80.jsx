@@ -341,29 +341,33 @@ async function transferirMotor() {
       : destinoTransferencia;
 
   const { data, error } = await supabase
-    .from("productos")
-    .update({
-      ubicacion: destinoSupabase,
-    })
-    .eq("id", idSeleccionado)
-    .select()
-    .single();
+  .from("productos")
+  .update({
+    ubicacion: destinoSupabase,
+  })
+  .eq("id", idSeleccionado)
+  .select();
 
-  if (error) {
-    console.error(
-      "Error transfiriendo desde Contenedor 80:",
-      error
-    );
+if (error) {
+  console.error(
+    "Error transfiriendo desde Contenedor 80:",
+    error
+  );
 
-    alert(
-      error.message ||
-        "No se pudo transferir el motor."
-    );
+  alert(
+    error.message ||
+      "No se pudo transferir el motor."
+  );
 
-    return;
-  }
+  return;
+}
 
-  console.log("Motor actualizado en Supabase:", data);
+if (!data || data.length === 0) {
+  alert("No se encontró el producto en Supabase.");
+  return;
+}
+
+console.log("Motor actualizado en Supabase:", data);
 
   setProductos((productosActuales) =>
     productosActuales.filter(
