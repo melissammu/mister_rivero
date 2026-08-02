@@ -65,9 +65,60 @@ export default function Contenedor40() {
     estado: "Disponible",
   });
 
-  useEffect(() => {
-    setProductos(obtenerProductosGuardados());
-  }, []);
+useEffect(() => {
+  let componenteActivo = true;
+
+  async function cargarContenedor40() {
+    const { data, error } = await supabase
+      .from("productos")
+      .select("*")
+      .eq("tipo", "motor")
+      .eq("ubicacion", "contenedor40");
+
+    if (error) {
+      console.error(
+        "Error cargando Contenedor 40:",
+        error
+      );
+      return;
+    }
+
+    if (!componenteActivo) {
+      return;
+    }
+
+    const productosAdaptados = (data || []).map(
+      (producto) => ({
+        ...producto,
+
+        precioCompra:
+          producto.precio_compra ?? 0,
+
+        precioVenta:
+          producto.precio_venta ?? 0,
+
+        numeroSerie:
+          producto.numero_serie || "",
+
+        imagenPrincipal:
+          Array.isArray(producto.imagenes)
+            ? producto.imagenes[0] || ""
+            : "",
+
+        estado:
+          producto.estado || "disponible",
+      })
+    );
+
+    setProductos(productosAdaptados);
+  }
+
+  cargarContenedor40();
+
+  return () => {
+    componenteActivo = false;
+  };
+}, []);
 
   function guardarProductos(nuevosProductos) {
     setProductos(nuevosProductos);
@@ -535,7 +586,7 @@ function abrirGaleria(motor) {
                   </p>
                 </div>
 
-                <button
+                <button 
                   type="button"
                   className="boton-principal"
                   onClick={cerrarModal}
