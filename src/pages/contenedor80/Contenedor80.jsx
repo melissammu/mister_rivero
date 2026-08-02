@@ -307,53 +307,84 @@ function abrirGaleria(motor) {
     alert("Motor actualizado correctamente.");
   }
 
-  function transferirMotor() {
-    if (!motorSeleccionado) return;
+async function transferirMotor() {
+  if (!motorSeleccionado) {
+    alert("Selecciona un motor.");
+    return;
+  }
 
-    if (!destinoTransferencia) {
-      alert("Selecciona un destino.");
-      return;
-    }
+  if (!destinoTransferencia) {
+    alert("Selecciona un destino.");
+    return;
+  }
 
-    if (destinoTransferencia === "contenedor80") {
-      alert(
-        "El motor ya se encuentra en el Contenedor 80."
-      );
-      return;
-    }
+  if (destinoTransferencia === "contenedor80") {
+    alert("El motor ya se encuentra en el Contenedor 80.");
+    return;
+  }
 
-    const idSeleccionado = obtenerId(motorSeleccionado);
+  const idSeleccionado = obtenerId(motorSeleccionado);
 
-    const productosActualizados = productos.map(
-      (producto) => {
-        if (obtenerId(producto) !== idSeleccionado) {
-          return producto;
-        }
+  if (!idSeleccionado) {
+    alert("No se encontró el identificador del motor.");
+    return;
+  }
 
-        return {
-          ...producto,
-          ubicacion: destinoTransferencia,
-          destino: destinoTransferencia,
-          actualizadoEn: new Date().toISOString(),
-        };
-      }
+  const destinoSupabase =
+    destinoTransferencia === "por-detal" ||
+    destinoTransferencia === "detal"
+      ? "detalle"
+      : destinoTransferencia === "contenedor-40"
+      ? "contenedor40"
+      : destinoTransferencia === "contenedor-80"
+      ? "contenedor80"
+      : destinoTransferencia;
+
+  const { data, error } = await supabase
+    .from("productos")
+    .update({
+      ubicacion: destinoSupabase,
+    })
+    .eq("id", idSeleccionado)
+    .select()
+    .single();
+
+  if (error) {
+    console.error(
+      "Error transfiriendo desde Contenedor 80:",
+      error
     );
-
-    guardarProductos(productosActualizados);
-
-    const destino = DESTINOS.find(
-      (opcion) =>
-        opcion.value === destinoTransferencia
-    );
-
-    cerrarModal();
 
     alert(
-      `Motor transferido correctamente a ${
-        destino?.label || "su nuevo destino"
-      }.`
+      error.message ||
+        "No se pudo transferir el motor."
     );
+
+    return;
   }
+
+  console.log("Motor actualizado en Supabase:", data);
+
+  setProductos((productosActuales) =>
+    productosActuales.filter(
+      (producto) =>
+        obtenerId(producto) !== idSeleccionado
+    )
+  );
+
+  const destino = DESTINOS.find(
+    (opcion) =>
+      opcion.value === destinoTransferencia
+  );
+
+  cerrarModal();
+
+  alert(
+    `Motor transferido correctamente a ${
+      destino?.label || "su nuevo destino"
+    }.`
+  );
+}
 
   function eliminarMotor() {
     if (!motorSeleccionado) return;
