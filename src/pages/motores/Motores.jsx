@@ -17,7 +17,7 @@ const destinos = [
     label: "Contenedor 80",
   },
   {
-    value: "detal",
+    value: "detalle",
     label: "Motor al detal",
   },
 ];
@@ -155,6 +155,7 @@ function esMotorAlDetal(producto) {
   }
 
   return [
+    "detalle",
     "detal",
     "pordetal",
     "motordetal",

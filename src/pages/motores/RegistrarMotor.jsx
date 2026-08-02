@@ -143,7 +143,7 @@ function RegistrarMotor() {
 
     if (archivo.size > limiteEnBytes) {
       alert(
-        "Cada fotografía debe pesar menos de 3 MB."
+        "Cada fotografía debe pesar menos de 10 MB."
       );
       return;
     }
