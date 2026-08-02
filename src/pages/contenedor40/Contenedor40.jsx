@@ -74,6 +74,8 @@ useEffect(() => {
       .select("*")
       .eq("tipo", "motor")
       .eq("ubicacion", "contenedor40");
+      console.log("Respuesta Supabase Contenedor 40:", data);
+      console.log("Error Supabase Contenedor 40:", error);
 
     if (error) {
       console.error(
@@ -264,55 +266,56 @@ function abrirGaleria(motor) {
     alert("Motor actualizado correctamente.");
   }
 
-  async function transferirMotor() {
-  if (!productoSeleccionado) return;
-
-  if (!destinoTransferencia) {
-    alert("Selecciona el destino del motor.");
+ async function transferirMotor() {
+  if (!productoSeleccionado) {
+    alert("Selecciona un motor.");
     return;
   }
 
-  if (destinoTransferencia === "contenedor40") {
-    alert("El motor ya se encuentra en el Contenedor 40.");
+  if (!destinoTransferencia) {
+    alert("Selecciona un destino.");
     return;
   }
 
   const destinoSupabase =
-    destinoTransferencia === "por-detal"
+    destinoTransferencia === "por-detal" ||
+    destinoTransferencia === "detal"
       ? "detalle"
+      : destinoTransferencia === "contenedor-40"
+      ? "contenedor40"
+      : destinoTransferencia === "contenedor-80"
+      ? "contenedor80"
       : destinoTransferencia;
 
-  const { error } = await supabase
+  console.log("ID que se transferirá:", productoSeleccionado.id);
+  console.log("Nuevo destino:", destinoSupabase);
+
+  const { data, error } = await supabase
     .from("productos")
     .update({
       ubicacion: destinoSupabase,
     })
-    .eq("id", productoSeleccionado.id);
+    .eq("id", productoSeleccionado.id)
+    .select()
+    .single();
 
   if (error) {
-    console.error("Error al transferir en Supabase:", error);
-    alert("No se pudo actualizar el catálogo.");
+    console.error("Error transfiriendo motor:", error);
+    alert(error.message || "No se pudo transferir el motor.");
     return;
   }
 
-  const actualizados = productos.map((producto) => {
-    if (producto.id !== productoSeleccionado.id) {
-      return producto;
-    }
+  console.log("Producto actualizado en Supabase:", data);
 
-    return {
-      ...producto,
-      ubicacion: destinoTransferencia,
-      destino: destinoTransferencia,
-      actualizadoEn: new Date().toISOString(),
-    };
-  });
+  setProductos((productosActuales) =>
+    productosActuales.filter(
+      (producto) => producto.id !== productoSeleccionado.id
+    )
+  );
 
-  guardarProductos(actualizados);
   cerrarModal();
   alert("Motor transferido correctamente.");
 }
-
   function eliminarMotor() {
     if (!productoSeleccionado) return;
 
