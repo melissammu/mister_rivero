@@ -69,51 +69,65 @@ useEffect(() => {
   let componenteActivo = true;
 
   async function cargarContenedor40() {
-    const { data, error } = await supabase
-      .from("productos")
-      .select("*")
-      .eq("tipo", "motor")
-      .eq("ubicacion", "contenedor40");
-      console.log("Respuesta Supabase Contenedor 40:", data);
-      console.log("Error Supabase Contenedor 40:", error);
+  const { data, error } = await supabase
+    .from("productos")
+    .select("*")
+    .eq("tipo", "motor");
 
-    if (error) {
-      console.error(
-        "Error cargando Contenedor 40:",
-        error
-      );
-      return;
-    }
-
-    if (!componenteActivo) {
-      return;
-    }
-
-    const productosAdaptados = (data || []).map(
-      (producto) => ({
-        ...producto,
-
-        precioCompra:
-          producto.precio_compra ?? 0,
-
-        precioVenta:
-          producto.precio_venta ?? 0,
-
-        numeroSerie:
-          producto.numero_serie || "",
-
-        imagenPrincipal:
-          Array.isArray(producto.imagenes)
-            ? producto.imagenes[0] || ""
-            : "",
-
-        estado:
-          producto.estado || "disponible",
-      })
+  if (error) {
+    console.error(
+      "Error cargando Contenedor 40:",
+      error
     );
-
-    setProductos(productosAdaptados);
+    return;
   }
+
+  const productosContenedor40 = (data || [])
+    .filter((producto) => {
+      const ubicacion = String(
+  producto?.ubicacion ||
+  producto?.destino ||
+  ""
+)
+  .toLowerCase()
+  .trim()
+  .replaceAll("-", "")
+  .replaceAll("_", "")
+  .replaceAll(" ", "");
+
+      return ubicacion === "contenedor40";
+    })
+    .map((producto) => ({
+      ...producto,
+
+      precioCompra:
+        producto.precio_compra ??
+        producto.precioCompra ??
+        0,
+
+      precioVenta:
+        producto.precio_venta ??
+        producto.precioVenta ??
+        0,
+
+      numeroSerie:
+        producto.numero_serie ??
+        producto.numeroSerie ??
+        "",
+
+      imagenPrincipal:
+        Array.isArray(producto.imagenes)
+          ? producto.imagenes[0] || ""
+          : "",
+    }));
+
+  console.log(
+    "Productos cargados en Contenedor 40:",
+    productosContenedor40
+  );
+
+  setProductos(productosContenedor40);
+ }
 
   cargarContenedor40();
 
