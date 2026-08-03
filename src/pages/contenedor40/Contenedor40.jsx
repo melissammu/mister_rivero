@@ -289,13 +289,18 @@ function abrirGaleria(motor) {
 
   console.log("ID que se transferirá:", productoSeleccionado.id);
   console.log("Nuevo destino:", destinoSupabase);
+const codigoSeleccionado = productoSeleccionado?.codigo;
 
+if (!codigoSeleccionado) {
+  alert("No se encontró el código del motor.");
+  return;
+}
   const { data, error } = await supabase
     .from("productos")
     .update({
       ubicacion: destinoSupabase,
     })
-    .eq("id", productoSeleccionado.id)
+    .eq("codigo", codigoSeleccionado)
     .select();
 
   if (error) {
@@ -322,7 +327,7 @@ if (!data || data.length === 0) {
     if (!productoSeleccionado) return;
 
     const actualizados = productos.filter(
-      (producto) => producto.id !== productoSeleccionado.id
+      (producto) => producto.codigo !== codigoSeleccionado
     );
 
     guardarProductos(actualizados);
