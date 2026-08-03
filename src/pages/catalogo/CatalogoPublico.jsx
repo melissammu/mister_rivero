@@ -847,10 +847,15 @@ const productosFiltrados = useMemo(() => {
       "";
 
     return (
-      <article
-        key={claveProducto}
-        className="catalogo-producto-card"
-      ><div className="producto-galeria">
+     <article
+  key={claveProducto}
+  id={`producto-${producto.id}`}
+  className={`catalogo-producto-card ${
+    String(producto.id) === String(productoCompartido)
+      ? "producto-compartido-destacado"
+      : ""
+  }`}
+><div className="producto-galeria">
   <div className="producto-imagen-principal">
     {imagenPrincipal ? (
       <img

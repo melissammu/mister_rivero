@@ -1362,3 +1362,24 @@ a {
     border-radius:20px;
     font-size:12px;
 }
+.producto-compartido-destacado {
+  outline: 4px solid #f5b400;
+  outline-offset: 5px;
+  border-radius: 18px;
+  box-shadow: 0 0 0 8px rgba(245, 180, 0, 0.2);
+  animation: resaltarProducto 1.2s ease-in-out 2;
+}
+
+@keyframes resaltarProducto {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.04);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
