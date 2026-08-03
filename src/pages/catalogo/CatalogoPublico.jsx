@@ -1,5 +1,8 @@
 import { useEffect,useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useCarrito } from "../../context/CarritoContext";
 import {
   FaAmazon,
@@ -149,6 +152,13 @@ const [fotoSeleccionada, setFotoSeleccionada] =
   useState({});
     
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+const productoCompartido =
+  searchParams.get("producto");
+
+const seccionCompartida =
+  searchParams.get("seccion");
 
 const {
   agregarAlCarrito,
