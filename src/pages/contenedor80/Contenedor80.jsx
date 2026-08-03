@@ -345,7 +345,7 @@ async function transferirMotor() {
   .update({
     ubicacion: destinoSupabase,
   })
-  .eq("codigo", productoSeleccionado.codigo)
+  .eq("id", idSeleccionado)
   .select();
 
 if (error) {
@@ -369,10 +369,9 @@ if (!data || data.length === 0) {
 
 console.log("Motor actualizado en Supabase:", data);
 
-  setProductos((productosActuales) =>
+ setProductos((productosActuales) =>
   productosActuales.filter(
-    (producto) =>
-      producto.codigo !== productoSeleccionado.codigo
+    (producto) => obtenerId(producto) !== idSeleccionado
   )
 );
 
