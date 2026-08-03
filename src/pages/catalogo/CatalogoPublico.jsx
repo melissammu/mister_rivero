@@ -518,40 +518,58 @@ const productosFiltrados = useMemo(() => {
   );
 }
 
-  async function compartirProducto(producto) {
-    const tipo =
-  producto.tipoCatalogo ||
-  seccionActiva;
+ async function compartirProducto(producto) {
+  const ubicacion = String(
+    producto?.ubicacion ||
+      producto?.destino ||
+      ""
+  )
+    .toLowerCase()
+    .trim()
+    .replaceAll("-", "")
+    .replaceAll("_", "")
+    .replaceAll(" ", "");
 
-const id =
-  producto.id ||
-  producto.codigo;
+  let seccion = "motores";
 
-const enlace = `${
-  window.location.origin
-}/catalogo/producto/${tipo}/${encodeURIComponent(
-  id
-)}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: obtenerNombre(producto),
-          text: `${obtenerNombre(
-            producto
-          )} disponible en Mr. Rivero Motors`,
-          url: enlace,
-        });
-
-        return;
-      }
-
-      await navigator.clipboard.writeText(enlace);
-
-      window.alert("Enlace copiado.");
-    } catch (error) {
-      console.error("Error compartiendo:", error);
-    }
+  if (ubicacion === "contenedor40") {
+    seccion = "contenedor40";
+  } else if (ubicacion === "contenedor80") {
+    seccion = "contenedor80";
+  } else if (
+    ["parte", "partes", "autoparte"].includes(
+      String(producto?.tipo || "").toLowerCase()
+    )
+  ) {
+    seccion = "partes";
   }
+
+  const enlace = `${
+    window.location.origin
+  }/catalogo?seccion=${seccion}&producto=${producto.id}`;
+
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: obtenerNombre(producto),
+        text: `${obtenerNombre(producto)} disponible en Mr. Rivero Motors`,
+        url: enlace,
+      });
+
+      return;
+    }
+
+    await navigator.clipboard.writeText(enlace);
+    window.alert("Enlace copiado.");
+  } catch (error) {
+    console.error("Error compartiendo:", error);
+
+    window.prompt(
+      "Copia este enlace:",
+      enlace
+    );
+  }
+}
 
   return (
     <main className="catalogo-publico">
