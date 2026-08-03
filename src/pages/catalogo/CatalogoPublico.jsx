@@ -580,7 +580,45 @@ const productosFiltrados = useMemo(() => {
     );
   }
 }
+useEffect(() => {
+  if (!seccionCompartida) {
+    return;
+  }
 
+  const seccionesPermitidas = [
+    "motores",
+    "contenedor40",
+    "contenedor80",
+    "partes",
+  ];
+
+  if (seccionesPermitidas.includes(seccionCompartida)) {
+    setSeccionActiva(seccionCompartida);
+  }
+}, [seccionCompartida]);useEffect(() => {
+  if (!productoCompartido) {
+    return;
+  }
+
+  const temporizador = setTimeout(() => {
+    const tarjeta = document.getElementById(
+      `producto-${productoCompartido}`
+    );
+
+    if (tarjeta) {
+      tarjeta.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, 800);
+
+  return () => clearTimeout(temporizador);
+}, [
+  productoCompartido,
+  seccionActiva,
+  productosSupabase,
+]);
   return (
     <main className="catalogo-publico">
       <header className="catalogo-header">
@@ -826,28 +864,24 @@ const productosFiltrados = useMemo(() => {
           </div>
         ) : (
           <div className="catalogo-grid">
-            {productosFiltrados.map(
-  (producto, indice) => {
-    const imagenesGaleria =
-      obtenerImagenesGaleria(producto);
+           {productosFiltrados.map((producto, indice) => {
+  const imagenesGaleria =
+    obtenerImagenesGaleria(producto);
 
-    const claveProducto =
-      obtenerClaveProducto(
-        producto,
-        indice
-      );
+  const claveProducto =
+    obtenerClaveProducto(producto, indice);
 
-    const indiceFotoActual =
-      fotoSeleccionada[claveProducto] ?? 0;
+  const indiceFotoActual =
+    fotoSeleccionada[claveProducto] ?? 0;
 
-    const imagenPrincipal =
-      imagenesGaleria[indiceFotoActual] ||
-      imagenesGaleria[0] ||
-      obtenerImagen(producto) ||
-      "";
+  const imagenPrincipal =
+    imagenesGaleria[indiceFotoActual] ||
+    imagenesGaleria[0] ||
+    obtenerImagen(producto) ||
+    "";
 
-    return (
-     <article
+  return (
+    <article
   key={claveProducto}
   id={`producto-${producto.id}`}
   className={`catalogo-producto-card ${
