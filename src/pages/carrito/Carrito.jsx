@@ -207,7 +207,10 @@ function realizarCompra() {
         <section className="carrito-contenido">
           <div className="carrito-lista">
             {productosCarrito.map((producto) => {
+
+              const itemId = producto.id;
               const idProducto =
+              
                 obtenerIdProducto(producto);
 
               const nombre =
@@ -215,6 +218,7 @@ function realizarCompra() {
 
               const imagen =
                 obtenerImagenProducto(producto);
+                
 
               const codigo =
                 obtenerCodigoProducto(producto);
@@ -236,7 +240,7 @@ function realizarCompra() {
 
               return (
                 <article
-                  key={idProducto}
+                  key={itemId}
                   className="carrito-item"
                 >
                   <div className="carrito-item-imagen">
