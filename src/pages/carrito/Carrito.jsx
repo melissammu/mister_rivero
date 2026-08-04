@@ -341,11 +341,16 @@ function realizarCompra() {
                     <button
                       type="button"
                       className="carrito-eliminar"
-                      onClick={() =>
-                        eliminarDelCarrito(
-                          idProducto
-                        )
-                      }
+                      onClick={async () => {
+  try {
+    await eliminarDelCarrito(itemId);
+  } catch (error) {
+    console.error(
+      "Error eliminando producto:",
+      error
+    );
+  }
+}}
                       disabled={procesando}
                     >
                       <FaTrashCan />
