@@ -148,8 +148,8 @@ export default function CatalogoPublico() {
 const [productosSupabase, setProductosSupabase] = useState([]);
 const [cargandoProductos, setCargandoProductos] = useState(true);
 const [errorProductos, setErrorProductos] = useState("");
-const [fotoSeleccionada, setFotoSeleccionada] =
-  useState({});
+const [fotoSeleccionada, setFotoSeleccionada] = useState({});
+
     
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -977,10 +977,15 @@ useEffect(() => {
 </div>
                       <h3>{obtenerNombre(producto)}</h3>
 
-                      <p>
-                        {producto.marca || "Sin marca"}{" "}
-                        {producto.modelo || ""}
-                      </p>
+                      <p className="producto-marca-modelo">
+  {producto.marca || "Sin marca"}{" "}
+  {producto.modelo || ""}
+</p>
+<p className="producto-descripcion">
+  {producto.descripcion ||
+   producto.descripcion ||
+    "Sin descripción disponible"}
+</p>
 
                       <strong className="producto-precio">
                         {formatearPrecio(

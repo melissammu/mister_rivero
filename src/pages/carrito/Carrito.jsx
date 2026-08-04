@@ -1,555 +1,370 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import { useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
-  FaBoxOpen,
   FaCartShopping,
-  FaClock,
   FaMinus,
   FaPlus,
-  FaRotateRight,
-  FaShieldHalved,
-  FaTrash,
-  FaTriangleExclamation,
+  FaTrashCan,
 } from "react-icons/fa6";
-
-import { useNavigate } from "react-router-dom";
 
 import { useCarrito } from "../../context/CarritoContext";
 import "../../styles/Carrito.css";
 
+/* =========================================================
+   FUNCIONES AUXILIARES
+========================================================= */
+
+function convertirNumero(valor) {
+  const numero = Number(valor);
+
+  return Number.isFinite(numero) ? numero : 0;
+}
+
 function formatearDolares(valor) {
-  return new Intl.NumberFormat("en-US", {
+  return convertirNumero(valor).toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
-  }).format(Number(valor) || 0);
+  });
 }
 
-function obtenerSegundosRestantes(fechaVencimiento) {
-  if (!fechaVencimiento) {
-    return 0;
+function obtenerNombreProducto(producto = {}) {
+  const marca = producto.marca || "";
+  const modelo = producto.modelo || "";
+
+  return (
+    producto.nombre ||
+    producto.titulo ||
+    `${marca} ${modelo}`.trim() ||
+    producto.descripcion ||
+    "Producto"
+  );
+}
+
+function obtenerImagenProducto(producto = {}) {
+  if (
+    Array.isArray(producto.imagenes) &&
+    producto.imagenes.length > 0
+  ) {
+    return producto.imagenes[0];
   }
 
-  const vencimiento = new Date(
-    fechaVencimiento
-  ).getTime();
+  if (
+    Array.isArray(producto.fotos) &&
+    producto.fotos.length > 0
+  ) {
+    return producto.fotos[0];
+  }
 
-  const diferencia =
-    vencimiento - Date.now();
-
-  return Math.max(
-    0,
-    Math.floor(diferencia / 1000)
+  return (
+    producto.imagenPrincipal ||
+    producto.imagen_principal ||
+    producto.imagen ||
+    producto.foto ||
+    ""
   );
 }
 
-function formatearContador(segundos) {
-  const minutos = Math.floor(
-    segundos / 60
+function obtenerCodigoProducto(producto = {}) {
+  return (
+    producto.codigo ||
+    producto.code ||
+    producto.numero_serie ||
+    producto.numeroSerie ||
+    "Sin código"
   );
-
-  const segundosRestantes =
-    segundos % 60;
-
-  return `${String(minutos).padStart(
-    2,
-    "0"
-  )}:${String(segundosRestantes).padStart(
-    2,
-    "0"
-  )}`;
 }
+
+/* =========================================================
+   COMPONENTE
+========================================================= */
 
 export default function Carrito() {
   const navigate = useNavigate();
 
   const {
-    usuario,
-    pedidoCarrito,
-    items,
-    cargando,
-    procesando,
-    cantidadProductos,
-    subtotal,
-    total,
-    cambiarCantidad,
-    eliminarDelCarrito,
-    iniciarReserva,
-    recargarCarrito,
-  } = useCarrito();
+  carrito = [],
+  itemsCarrito = [],
+  cantidadProductos = 0,
+  subtotal = 0,
+  costoEnvio = 0,
+  totalCarrito = 0,
+  carritoVacio = true,
 
-  const [mostrarConfirmacion, setMostrarConfirmacion] =
-    useState(false);
+  aumentarCantidad,
+  disminuirCantidad,
+  eliminarDelCarrito,
+  vaciarCarrito,
 
-  const [segundosRestantes, setSegundosRestantes] =
-    useState(0);
+  mensajeCarrito = "",
+  limpiarMensaje,
 
-  const [mensaje, setMensaje] =
-    useState("");
+  procesando = false,
+  obtenerIdProducto,
+  obtenerPrecioProducto,
+  obtenerStockProducto,
+  esMotor,
+} = useCarrito();
+const productosCarrito = Array.isArray(carrito)
+  ? carrito
+  : Array.isArray(itemsCarrito)
+    ? itemsCarrito
+    : [];
 
-  const reservaActiva =
-    pedidoCarrito?.estado ===
-      "pago_pendiente" &&
-    segundosRestantes > 0;
-
-  const reservaVencida =
-    pedidoCarrito?.estado ===
-      "expirado" ||
-    (pedidoCarrito?.estado ===
-      "pago_pendiente" &&
-      segundosRestantes === 0);
-
-  useEffect(() => {
-    setSegundosRestantes(
-      obtenerSegundosRestantes(
-        pedidoCarrito?.reservado_hasta
-      )
+  function volverAlCatalogo() {
+    navigate("/catalogo");
+  }
+function realizarCompra() {
+  if (productosCarrito.length === 0) {
+    window.alert(
+      "Agrega al menos un producto antes de realizar la compra."
     );
-  }, [
-    pedidoCarrito?.reservado_hasta,
-  ]);
-
-  useEffect(() => {
-    if (
-      pedidoCarrito?.estado !==
-        "pago_pendiente" ||
-      !pedidoCarrito.reservado_hasta
-    ) {
-      return undefined;
-    }
-
-    const intervalo = window.setInterval(
-      () => {
-        const restantes =
-          obtenerSegundosRestantes(
-            pedidoCarrito.reservado_hasta
-          );
-
-        setSegundosRestantes(restantes);
-
-        if (restantes === 0) {
-          window.clearInterval(intervalo);
-
-          window.setTimeout(() => {
-            recargarCarrito();
-          }, 1200);
-        }
-      },
-      1000
-    );
-
-    return () => {
-      window.clearInterval(intervalo);
-    };
-  }, [
-    pedidoCarrito?.estado,
-    pedidoCarrito?.reservado_hasta,
-    recargarCarrito,
-  ]);
-
-  const claseContador = useMemo(() => {
-    if (segundosRestantes <= 60) {
-      return "carrito-contador peligro";
-    }
-
-    if (segundosRestantes <= 120) {
-      return "carrito-contador alerta";
-    }
-
-    if (segundosRestantes <= 300) {
-      return "carrito-contador atencion";
-    }
-
-    return "carrito-contador";
-  }, [segundosRestantes]);
-
-  async function confirmarReserva() {
-    setMensaje("");
-
-    try {
-      await iniciarReserva();
-      setMostrarConfirmacion(false);
-    } catch (error) {
-      console.error(
-        "Error iniciando la reserva:",
-        error
-      );
-
-      if (
-        error.message ===
-        "USUARIO_NO_AUTENTICADO"
-      ) {
-        navigate("/iniciar-sesion", {
-          state: {
-            desde: "/carrito",
-          },
-        });
-
-        return;
-      }
-
-      if (
-        error.message ===
-        "CARRITO_VACIO"
-      ) {
-        setMensaje(
-          "El carrito está vacío."
-        );
-
-        return;
-      }
-
-      setMensaje(
-        error.message ||
-          "No fue posible iniciar la reserva."
-      );
-    }
+    return;
   }
 
-  async function actualizarCantidad(
-    item,
-    nuevaCantidad
-  ) {
-    if (reservaActiva) {
-      setMensaje(
-        "No puedes modificar el carrito mientras la reserva está activa."
-      );
-
-      return;
-    }
-
-    try {
-      await cambiarCantidad(
-        item.id,
-        nuevaCantidad
-      );
-    } catch (error) {
-      console.error(
-        "Error actualizando cantidad:",
-        error
-      );
-
-      setMensaje(
-        "No fue posible actualizar la cantidad."
-      );
-    }
-  }
-
-  async function eliminarItem(itemId) {
-    if (reservaActiva) {
-      setMensaje(
-        "No puedes eliminar productos mientras la reserva está activa."
-      );
-
-      return;
-    }
-
-    try {
-      await eliminarDelCarrito(itemId);
-    } catch (error) {
-      console.error(
-        "Error eliminando producto:",
-        error
-      );
-
-      setMensaje(
-        "No fue posible eliminar el producto."
-      );
-    }
-  }
-
-  if (cargando) {
-    return (
-      <main className="carrito-page">
-        <section className="carrito-cargando">
-          <FaCartShopping />
-          <p>Cargando tu carrito...</p>
-        </section>
-      </main>
-    );
-  }
-
-  if (!usuario) {
-    return (
-      <main className="carrito-page">
-        <section className="carrito-vacio">
-          <FaShieldHalved />
-
-          <h1>Inicia sesión</h1>
-
-          <p>
-            Debes iniciar sesión para consultar
-            y administrar tu carrito.
-          </p>
-
-          <button
-            type="button"
-            onClick={() =>
-              navigate("/iniciar-sesion", {
-                state: {
-                  desde: "/carrito",
-                },
-              })
-            }
-          >
-            Iniciar sesión
-          </button>
-        </section>
-      </main>
-    );
-  }
+  navigate("/checkout");
+}
 
   return (
-    <main className="carrito-page">
-      <header className="carrito-header">
+    <main className="carrito-pagina">
+      <header className="carrito-encabezado">
         <button
           type="button"
           className="carrito-volver"
-          onClick={() =>
-            navigate("/catalogo")
-          }
+          onClick={volverAlCatalogo}
         >
           <FaArrowLeft />
           Seguir comprando
         </button>
 
-        <div>
-          <span>MR. RIVERO MOTORS</span>
-          <h1>Mi carrito</h1>
-
-          <p>
-            {cantidadProductos}{" "}
-            {cantidadProductos === 1
-              ? "producto seleccionado"
-              : "productos seleccionados"}
-          </p>
-        </div>
-
-        <div className="carrito-header-icono">
+        <div className="carrito-titulo">
           <FaCartShopping />
-          <strong>
-            {cantidadProductos}
-          </strong>
-        </div>
-      </header>
-
-      {reservaActiva && (
-        <section className={claseContador}>
-          <div>
-            <FaClock />
-
-            <span>
-              Tiempo restante para completar
-              el pago
-            </span>
-          </div>
-
-          <strong>
-            {formatearContador(
-              segundosRestantes
-            )}
-          </strong>
-
-          <p>
-            Tus productos están reservados.
-            Cuando el contador llegue a cero,
-            volverán a estar disponibles.
-          </p>
-        </section>
-      )}
-
-      {reservaVencida && (
-        <section className="carrito-reserva-vencida">
-          <FaTriangleExclamation />
 
           <div>
-            <h2>La reserva venció</h2>
+            <h1>Mi carrito</h1>
 
             <p>
-              Los productos volvieron al
-              estante por falta de pago.
-              Comprueba su disponibilidad antes
-              de reservarlos nuevamente.
+              {cantidadProductos === 1
+                ? "1 producto"
+                : `${cantidadProductos} productos`}
             </p>
           </div>
+        </div>
 
+        {!carritoVacio && (
           <button
             type="button"
-            onClick={() =>
-              setMostrarConfirmacion(true)
-            }
+            className="carrito-vaciar"
+            onClick={() => {
+              const confirmar = window.confirm(
+                "¿Quieres eliminar todos los productos del carrito?"
+              );
+
+              if (confirmar) {
+                vaciarCarrito();
+              }
+            }}
           >
-            <FaRotateRight />
-            Reservar nuevamente
+            Vaciar carrito
           </button>
-        </section>
-      )}
+        )}
+      </header>
 
-      {mensaje && (
+      {mensajeCarrito && (
         <div className="carrito-mensaje">
-          {mensaje}
+          <span>{mensajeCarrito}</span>
 
           <button
             type="button"
-            onClick={() => setMensaje("")}
+            onClick={limpiarMensaje}
+            aria-label="Cerrar mensaje"
           >
             ×
           </button>
         </div>
       )}
 
-      {items.length === 0 ? (
+        {productosCarrito.length === 0 ?  (
         <section className="carrito-vacio">
-          <FaBoxOpen />
+          <div className="carrito-vacio-icono">
+            <FaCartShopping />
+          </div>
 
           <h2>Tu carrito está vacío</h2>
 
           <p>
-            Explora nuestros motores y
-            autopartes disponibles.
+            Explora el catálogo de motores y autopartes
+            disponibles.
           </p>
 
           <button
             type="button"
-            onClick={() =>
-              navigate("/catalogo")
-            }
+            onClick={volverAlCatalogo}
           >
             Ver catálogo
           </button>
         </section>
       ) : (
-        <div className="carrito-layout">
-          <section className="carrito-lista">
-            {items.map((item) => (
-              <article
-                key={item.id}
-                className={
-                  reservaVencida
-                    ? "carrito-item vencido"
-                    : "carrito-item"
-                }
-              >
-                <div className="carrito-item-imagen">
-                  <FaBoxOpen />
-                </div>
+        <section className="carrito-contenido">
+          <div className="carrito-lista">
+            {productosCarrito.map((producto) => {
+              const idProducto =
+                obtenerIdProducto(producto);
 
-                <div className="carrito-item-info">
-                  <span className="carrito-item-tipo">
-                    {item.tipo_producto ===
-                    "motor"
-                      ? "Motor"
-                      : "Autoparte"}
-                  </span>
+              const nombre =
+                obtenerNombreProducto(producto);
 
-                  <h3>
-                    {item.nombre_producto}
-                  </h3>
+              const imagen =
+                obtenerImagenProducto(producto);
 
-                  <small>
-                    Referencia:{" "}
-                    {item.producto_id}
-                  </small>
+              const codigo =
+                obtenerCodigoProducto(producto);
 
-                  {reservaVencida && (
-                    <p className="carrito-item-aviso">
-                      Disponible nuevamente en
-                      el estante por falta de
-                      pago.
-                    </p>
-                  )}
-                </div>
+              const precioUnitario =
+                obtenerPrecioProducto(producto);
 
-                <div className="carrito-item-precio">
-                  <span>Precio unitario</span>
+              const cantidad =
+                convertirNumero(producto.cantidad);
 
-                  <strong>
-                    {formatearDolares(
-                      item.precio_unitario
-                    )}
-                  </strong>
-                </div>
+              const stock =
+                obtenerStockProducto(producto);
 
-                <div className="carrito-cantidad">
-                  <span>Cantidad</span>
+              const productoEsMotor =
+                esMotor(producto);
 
-                  {item.tipo_producto ===
-                  "motor" ? (
-                    <strong>1</strong>
-                  ) : (
-                    <div>
-                      <button
-                        type="button"
-                        disabled={
-                          reservaActiva ||
-                          item.cantidad <= 1
-                        }
-                        onClick={() =>
-                          actualizarCantidad(
-                            item,
-                            item.cantidad - 1
-                          )
-                        }
-                      >
-                        <FaMinus />
-                      </button>
+              const subtotalProducto =
+                precioUnitario * cantidad;
 
-                      <strong>
-                        {item.cantidad}
-                      </strong>
-
-                      <button
-                        type="button"
-                        disabled={reservaActiva}
-                        onClick={() =>
-                          actualizarCantidad(
-                            item,
-                            item.cantidad + 1
-                          )
-                        }
-                      >
-                        <FaPlus />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="carrito-item-subtotal">
-                  <span>Subtotal</span>
-
-                  <strong>
-                    {formatearDolares(
-                      item.subtotal
-                    )}
-                  </strong>
-                </div>
-
-                <button
-                  type="button"
-                  className="carrito-eliminar"
-                  disabled={reservaActiva}
-                  onClick={() =>
-                    eliminarItem(item.id)
-                  }
-                  aria-label="Eliminar producto"
+              return (
+                <article
+                  key={idProducto}
+                  className="carrito-item"
                 >
-                  <FaTrash />
-                </button>
-              </article>
-            ))}
-          </section>
+                  <div className="carrito-item-imagen">
+                    {imagen ? (
+                      <img
+                        src={imagen}
+                        alt={nombre}
+                      />
+                    ) : (
+                      <div className="carrito-sin-imagen">
+                        Sin imagen
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="carrito-item-informacion">
+                    <span className="carrito-item-codigo">
+                      {codigo}
+                    </span>
+
+                    <h2>{nombre}</h2>
+
+                    {producto.descripcion && (
+                      <p className="carrito-item-descripcion">
+                        {producto.descripcion}
+                      </p>
+                    )}
+
+                    <strong className="carrito-item-precio">
+                      {formatearDolares(
+                        precioUnitario
+                      )}
+                    </strong>
+
+                    <div className="carrito-item-detalles">
+                      <span>
+                        Estado:{" "}
+                        <strong>
+                          {producto.estado ||
+                            "Disponible"}
+                        </strong>
+                      </span>
+
+                      {!productoEsMotor && (
+                        <span>
+                          Stock disponible:{" "}
+                          <strong>{stock}</strong>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="carrito-item-controles">
+                    {productoEsMotor ? (
+                      <div className="carrito-cantidad-unica">
+                        Cantidad: 1
+                      </div>
+                    ) : (
+                      <div className="carrito-cantidad">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            disminuirCantidad(
+                              idProducto
+                            )
+                          }
+                          disabled={
+                            procesando ||
+                            cantidad <= 1
+                          }
+                          aria-label="Disminuir cantidad"
+                        >
+                          <FaMinus />
+                        </button>
+
+                        <span>{cantidad}</span>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            aumentarCantidad(
+                              idProducto
+                            )
+                          }
+                          disabled={
+                            procesando ||
+                            cantidad >= stock
+                          }
+                          aria-label="Aumentar cantidad"
+                        >
+                          <FaPlus />
+                        </button>
+                      </div>
+                    )}
+
+                    <strong className="carrito-item-subtotal">
+                      {formatearDolares(
+                        subtotalProducto
+                      )}
+                    </strong>
+
+                    <button
+                      type="button"
+                      className="carrito-eliminar"
+                      onClick={() =>
+                        eliminarDelCarrito(
+                          idProducto
+                        )
+                      }
+                      disabled={procesando}
+                    >
+                      <FaTrashCan />
+                      Eliminar
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
 
           <aside className="carrito-resumen">
-            <span>Resumen del pedido</span>
-
-            <h2>Tu compra</h2>
+            <h2>Resumen de compra</h2>
 
             <div className="carrito-resumen-fila">
-              <span>Subtotal</span>
+              <span>
+                Productos ({cantidadProductos})
+              </span>
+
               <strong>
                 {formatearDolares(subtotal)}
               </strong>
@@ -557,129 +372,59 @@ export default function Carrito() {
 
             <div className="carrito-resumen-fila">
               <span>Envío</span>
+
               <strong>
-                Por coordinar
+                {costoEnvio > 0
+                  ? formatearDolares(costoEnvio)
+                  : "Por calcular"}
               </strong>
             </div>
 
-            <div className="carrito-resumen-fila">
-              <span>Impuestos</span>
-              <strong>
-                {formatearDolares(
-                  pedidoCarrito?.impuestos
-                )}
-              </strong>
-            </div>
+            <div className="carrito-resumen-separador" />
 
             <div className="carrito-resumen-total">
               <span>Total</span>
 
               <strong>
-                {formatearDolares(total)}
+                {formatearDolares(totalCarrito)}
               </strong>
             </div>
 
-            {!reservaActiva && (
-              <button
-                type="button"
-                className="carrito-pagar"
-                disabled={procesando}
-                onClick={() =>
-                  setMostrarConfirmacion(true)
-                }
-              >
-                <FaShieldHalved />
-
-                {reservaVencida
-                  ? "Reservar nuevamente"
-                  : "Proceder al pago"}
-              </button>
-            )}
-
-            {reservaActiva && (
-              <button
-                type="button"
-                className="carrito-pagar"
-                onClick={() =>
-                  navigate("/pago")
-                }
-              >
-                Continuar con el pago
-              </button>
-            )}
-
-            <p className="carrito-seguridad">
-              La reserva comienza únicamente
-              al proceder al pago.
+            <p className="carrito-resumen-aviso">
+              El costo del envío se calculará según la
+              forma de entrega seleccionada. También podrás
+              elegir retirar gratuitamente en el local.
             </p>
+
+            <button
+              type="button"
+              className="carrito-comprar"
+              onClick={realizarCompra}
+              disabled={procesando || carritoVacio}
+            >
+              {procesando
+                ? "Procesando..."
+                : "Realizar compra"}
+            </button>
+
+            <button
+              type="button"
+              className="carrito-seguir"
+              onClick={volverAlCatalogo}
+            >
+              Seguir comprando
+            </button>
+
+            <div className="carrito-compra-segura">
+              <strong>Compra segura</strong>
+
+              <span>
+                Los productos no cambian a reservado hasta
+                que comiences el proceso de pago.
+              </span>
+            </div>
           </aside>
-        </div>
-      )}
-
-      {mostrarConfirmacion && (
-        <div
-          className="carrito-modal-fondo"
-          onMouseDown={() =>
-            setMostrarConfirmacion(false)
-          }
-        >
-          <section
-            className="carrito-modal"
-            onMouseDown={(evento) =>
-              evento.stopPropagation()
-            }
-          >
-            <div className="carrito-modal-icono">
-              <FaClock />
-            </div>
-
-            <span>Reserva de compra</span>
-
-            <h2>
-              Tendrás 10 minutos para pagar
-            </h2>
-
-            <p>
-              Al continuar, los productos se
-              reservarán exclusivamente para ti
-              durante diez minutos.
-            </p>
-
-            <div className="carrito-modal-aviso">
-              <FaTriangleExclamation />
-
-              <p>
-                Si el pago no se confirma antes
-                de terminar el contador, la
-                reserva vencerá y los productos
-                volverán a estar disponibles.
-              </p>
-            </div>
-
-            <div className="carrito-modal-acciones">
-              <button
-                type="button"
-                className="carrito-modal-cancelar"
-                onClick={() =>
-                  setMostrarConfirmacion(false)
-                }
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                className="carrito-modal-confirmar"
-                disabled={procesando}
-                onClick={confirmarReserva}
-              >
-                {procesando
-                  ? "Reservando..."
-                  : "Reservar y continuar"}
-              </button>
-            </div>
-          </section>
-        </div>
+        </section>
       )}
     </main>
   );

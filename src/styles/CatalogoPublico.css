@@ -794,25 +794,26 @@ a {
 }
 
 .producto-card-contenido {
-  padding: 18px;
+  padding: 12px 14px 14px;
 }
 
 .producto-codigo {
   display: block;
-  margin-bottom: 7px;
+  margin-bottom: 3px;
   color: #8b95a2;
   font-size: 0.69rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  line-height: 1.15;
 }
 
 .producto-card-contenido h3 {
-  min-height: 46px;
-  margin: 0 0 7px;
+  min-height: auto;
+  margin: 0 0 3px;
   color: var(--catalogo-negro);
   font-size: 1rem;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
 .producto-card-contenido p {
@@ -1382,4 +1383,17 @@ a {
   100% {
     transform: scale(1);
   }
+}
+.producto-marca-modelo{
+    color:#8b8b8b;
+    font-size:14px;
+    margin-top:6px;
+}
+
+.producto-descripcion {
+  margin: 2px 0 6px;
+  color: #666;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  min-height: auto;
 }

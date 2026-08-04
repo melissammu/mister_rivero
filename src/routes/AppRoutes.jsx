@@ -104,7 +104,14 @@ export default function AppRoutes() {
       ============================== */}
       <Route path="/crear-cuenta" element={<RegistroUsuario />} />
       <Route path="/iniciar-sesion" element={<LoginUsuario />} />
-
+<Route
+  path="/checkout"
+  element={
+    <div style={{ padding: "40px" }}>
+      Próximamente: entrega y pago
+    </div>
+  }
+/>
       <Route
         path="*"
         element={
