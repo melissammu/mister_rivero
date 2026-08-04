@@ -82,33 +82,25 @@ export default function Carrito() {
   const navigate = useNavigate();
 
   const {
-  carrito = [],
-  itemsCarrito = [],
+  items = [],
   cantidadProductos = 0,
   subtotal = 0,
-  costoEnvio = 0,
-  totalCarrito = 0,
-  carritoVacio = true,
+  envio = 0,
+  impuestos = 0,
+  total = 0,
 
-  aumentarCantidad,
-  disminuirCantidad,
-  eliminarDelCarrito,
-  vaciarCarrito,
-
-  mensajeCarrito = "",
-  limpiarMensaje,
-
+  cargando = false,
   procesando = false,
-  obtenerIdProducto,
-  obtenerPrecioProducto,
-  obtenerStockProducto,
-  esMotor,
+  errorCarrito = "",
+
+  cambiarCantidad,
+  eliminarDelCarrito,
+  iniciarReserva,
+  limpiarErrorCarrito,
 } = useCarrito();
-const productosCarrito = Array.isArray(carrito)
-  ? carrito
-  : Array.isArray(itemsCarrito)
-    ? itemsCarrito
-    : [];
+const productosCarrito = Array.isArray(items)
+  ? items
+  : [];
 
   function volverAlCatalogo() {
     navigate("/catalogo");
