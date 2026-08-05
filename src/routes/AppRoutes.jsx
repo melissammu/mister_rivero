@@ -8,6 +8,7 @@ import Login from "../pages/auth/Login";
 import Dashboard from "../pages/admin/Dashboard";
 import AdminLayout from "../layouts/AdminLayout";
 
+
 import Motores from "../pages/motores/Motores";
 import RegistrarMotor from "../pages/motores/RegistrarMotor";
 import Contenedor40 from "../pages/contenedor40/Contenedor40";
@@ -20,6 +21,7 @@ import ProductoDetalle from "../pages/catalogo/ProductoDetalle";
 import RegistroUsuario from "../pages/authUsuario/RegistroUsuario";
 import LoginUsuario from "../pages/authUsuario/LoginUsuario";
 import Carrito from "../pages/carrito/Carrito";
+import Checkout from "../pages/checkout/Checkout";
 export default function AppRoutes() {
   return (
     <Routes>
@@ -98,19 +100,19 @@ export default function AppRoutes() {
          path="pedidos"
          element={<Pedidos />}
         />
-
+<Route
+  path="/checkout"
+  element={<Checkout />}
+/>
       {/* ==============================
           RUTA NO ENCONTRADA
       ============================== */}
       <Route path="/crear-cuenta" element={<RegistroUsuario />} />
       <Route path="/iniciar-sesion" element={<LoginUsuario />} />
-<Route
-  path="/checkout"
-  element={
-    <div style={{ padding: "40px" }}>
-      Próximamente: entrega y pago
-    </div>
+<Route path="/checkout"element={
+    <div style={{ padding: "40px" }}>Próximamente: entrega y pago</div>
   }
+  
 />
       <Route
         path="*"
