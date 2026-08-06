@@ -579,33 +579,35 @@ export function CarritoProvider({ children }) {
      ELIMINAR PRODUCTO
   ======================================================= */
 
-  async function eliminarDelCarrito(
-    itemId
-  ) {
-    if (!pedidoCarrito?.id) {
-      throw new Error("CARRITO_NO_EXISTE");
-    }
+ async function eliminarDelCarrito(itemId) {
+  if (!pedidoCarrito?.id) {
+    throw new Error("CARRITO_NO_EXISTE");
+  }
 
-    if (
-      pedidoCarrito.estado !== "carrito"
-    ) {
-      throw new Error(
-        "CARRITO_NO_MODIFICABLE"
+  setProcesando(true);
+  setErrorCarrito("");
+
+  try {
+    const pedidoReservado =
+      pedidoCarrito.estado === "pago_pendiente";
+
+    if (pedidoReservado) {
+      const { error } = await supabase.rpc(
+        "cancelar_item_reservado",
+        {
+          p_item_id: itemId,
+        }
       );
-    }
 
-    setProcesando(true);
-    setErrorCarrito("");
-
-    try {
+      if (error) {
+        throw error;
+      }
+    } else {
       const { error } = await supabase
         .from("pedido_items")
         .delete()
         .eq("id", itemId)
-        .eq(
-          "pedido_id",
-          pedidoCarrito.id
-        );
+        .eq("pedido_id", pedidoCarrito.id);
 
       if (error) {
         throw error;
@@ -614,22 +616,25 @@ export function CarritoProvider({ children }) {
       await recalcularPedido(
         pedidoCarrito.id
       );
-    } catch (error) {
-      console.error(
-        "Error eliminando producto:",
-        error
-      );
-
-      setErrorCarrito(
-        error.message ||
-          "No fue posible eliminar el producto."
-      );
-
-      throw error;
-    } finally {
-      setProcesando(false);
     }
+
+    await cargarCarrito(usuario);
+  } catch (error) {
+    console.error(
+      "Error eliminando producto:",
+      error
+    );
+
+    setErrorCarrito(
+      error.message ||
+        "No fue posible eliminar el producto."
+    );
+
+    throw error;
+  } finally {
+    setProcesando(false);
   }
+}
 
   /* =======================================================
      INICIAR RESERVA DE 10 MINUTOS
